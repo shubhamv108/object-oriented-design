@@ -10,13 +10,13 @@ public class Board implements Cloneable {
     // one to one
     private Game game;
 
-    public Board(String id, Integer sideLength) {
+    public Board(final String id, final Integer sideLength) {
         this.id = id;
         this.squares = new Square[sideLength][sideLength];
         this.sideLength = sideLength;
     }
 
-    public boolean setSquare(Integer x, Integer y, Character character) {
+    public boolean setSquare(final Integer x, final Integer y, final Character character) {
         boolean result = false;
         if (this.squares[x][y] == null) {
             this.squares[x][y] = new Square(character);

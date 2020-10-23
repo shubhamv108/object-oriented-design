@@ -29,7 +29,7 @@ public class Game {
 
     private static final transient int MAX_BOARD_SIDE_SIZE = 46340;
 
-    public Game(String id, User userX, User userO, int sideLength) {
+    public Game(final String id, final User userX, final User userO, final int sideLength) {
         if (sideLength > MAX_BOARD_SIDE_SIZE) throw new IllegalArgumentException("Invalid Board Size Selected");
         this.id = id;
         this.moves = new ArrayList<>(sideLength * sideLength);
@@ -43,7 +43,7 @@ public class Game {
         this.maxMoves = sideLength * sideLength;
     }
 
-    public User makeMove(Move move) {
+    public User makeMove(final Move move) {
         if (winner != null) new IllegalArgumentException("Winner: " + winner.getDisplayName());
         if (this.moves.size() < maxMoves) new IllegalArgumentException("Game Over");
         if (move.getX() < 0 || move.getX() >= board.getSideLength() || move.getY() < 0 || move.getY() >= board.getSideLength()) {
