@@ -12,8 +12,8 @@ public class Admin implements IAdmin, IObserver {
 
     private final Set<VendingMachine> machines = new HashSet<>();
 
-    public void addMachine(final VendingMachine machine) {
-        this.machines.add(machine);
+    private boolean addMachine(final VendingMachine machine) {
+        return this.machines.add(machine);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Admin implements IAdmin, IObserver {
     @Override
     public boolean subscribe(VendingMachine machine) {
         if (machine.addAdmin(this)) {
-            return this.machines.add(machine);
+            return this.addMachine(machine);
         }
         return false;
     }
