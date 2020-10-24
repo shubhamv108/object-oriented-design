@@ -1,9 +1,7 @@
 package vendingmachine.admin.observers;
 
-import vendingmachine.exceptions.MachineWarning;
-import vendingmachine.impl.VendingMachine;
-
 public interface ISubscriber {
-    boolean notify(VendingMachine machine, MachineWarning notification);
-    boolean subscribe(VendingMachine machine);
+    boolean notify(ISubscription subscription, INotification notification);
+    boolean subscribe(ISubscription subscription);
+    boolean unsubscribe(ISubscription subscription);
 }

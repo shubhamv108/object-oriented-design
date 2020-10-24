@@ -1,6 +1,8 @@
 package vendingmachine.exceptions;
 
-public class MachineWarning extends RuntimeException {
+import vendingmachine.admin.observers.INotification;
+
+public class MachineWarning extends RuntimeException implements INotification {
     private String errorMsg;
 
     public MachineWarning(String errMsg) {
@@ -8,6 +10,11 @@ public class MachineWarning extends RuntimeException {
     }
 
     public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    @Override
+    public String get() {
         return errorMsg;
     }
 }

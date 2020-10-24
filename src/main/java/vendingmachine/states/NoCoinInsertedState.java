@@ -1,5 +1,8 @@
 package vendingmachine.states;
 
+import vendingmachine.enums.Button;
+import vendingmachine.enums.Coin;
+import vendingmachine.models.Item;
 import vendingmachine.impl.VendingMachine;
 import vendingmachine.exceptions.MachineWarning;
 
@@ -11,18 +14,18 @@ public class NoCoinInsertedState implements State {
     }
 
     @Override
-    public void insertCoin() throws MachineWarning {
-        if (!machine.isEmpty()) machine.setMachineState(machine.getCoinInsertedState());
-        else throw new MachineWarning("Cannot process request machine is out of stock");
+    public void insertCoin(final Coin coin) throws MachineWarning {
+        if (this.machine.isEmpty()) throw new MachineWarning("Cannot process request machine is out of stock");
+        this.machine.setCoinInsertedState(coin);
     }
 
     @Override
-    public void pressButton() throws MachineWarning {
-        throw new MachineWarning("No coin inseted...");
+    public void pressButton(final Button button) throws MachineWarning {
+        throw new MachineWarning("No coin inserted...");
     }
 
     @Override
-    public void dispense() throws MachineWarning {
+    public Item dispense() throws MachineWarning {
         throw new MachineWarning("Invalid operation...");
     }
 }
