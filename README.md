@@ -1,1 +1,5 @@
 - Tic Tac Toe
+- Snakes and Ladders
+- Vending Machine
+- Bowling Alley
+- Publisher Susbcriber
