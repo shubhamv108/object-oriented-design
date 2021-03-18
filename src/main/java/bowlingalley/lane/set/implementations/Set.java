@@ -1,7 +1,7 @@
 package bowlingalley.lane.set.implementations;
 
 import bowlingalley.constants.enums.MaxRollForPlayerForSetStrategyType;
-import bowlingalley.exceptions.GameException;
+import commons.exceptions.GameException;
 import bowlingalley.factories.stategyfactory.implementations.MaxRollForPlayerForSetStrategyFactory;
 import bowlingalley.lane.game.implementation.IGame;
 import bowlingalley.lane.player.IPlayer;
