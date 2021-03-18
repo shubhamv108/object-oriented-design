@@ -20,3 +20,4 @@ ToDo: Create generic board game using OOD.
     - State Pattern
     - Object Pool                                                         
     - Command Pattern
+    - Iterator Pattern
