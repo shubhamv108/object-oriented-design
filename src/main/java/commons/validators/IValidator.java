@@ -1,13 +1,13 @@
 package commons.validators;
 
-import bowlingalley.exceptions.GameException;
-import com.sun.tools.javac.util.List;
+import commons.exceptions.GameException;
 
+import java.util.Collection;
 import java.util.Map;
 
-public interface IValidator<Data> {
-
-    Map<String, List<String>> validate(Data data);
-    void validateOrThrowException(Data data) throws GameException;
-
+public interface IValidator<OBJECT> {
+    IValidator<OBJECT> validate(OBJECT object);
+    IValidator<OBJECT> validateOrThrowException(OBJECT object) throws GameException;
+    boolean hasMessages();
+    Map<String, Collection<String>> getResult();
 }

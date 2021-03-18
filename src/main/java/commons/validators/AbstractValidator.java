@@ -1,32 +1,61 @@
 package commons.validators;
 
-import commons.validators.IValidator;
-import java.util.List;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class AbstractValidator<Data> implements IValidator<Data> {
+public abstract class AbstractValidator<OBJECT> implements IValidator<OBJECT> {
 
-    protected Map<String, List<String>> messages = new LinkedHashMap<>();
+    private Map<String, Collection<String>> messages = new LinkedHashMap<>();
 
-    protected boolean putMessage(final String messageKey, final String messageValue) {
-        List<String> messagesValues = this.messages.get(messageKey);
-        if (messagesValues == null) this.messages.put(messageKey, messagesValues = new ArrayList<>());
+    protected boolean putMessage(final String messageKey, final String messageValueFormat) {
+        return this.putMessage(messageKey, messageValueFormat, null);
+    }
+
+    protected boolean putMessage(final String messageKey, final String messageValueFormat, final Object... messageValueArguments) {
+        String messageValue = String.format(messageValueFormat, messageValueArguments);
+        Collection<String> messagesValues = this.getMessages().get(messageKey);
+        if (messagesValues == null) this.getMessages().put(messageKey, messagesValues = new ArrayList<>());
         return messagesValues.add(messageValue);
     }
 
-    protected boolean putMessages(final String messageKey, final List<String> messageValue) {
-        List<String> messagesValues = this.messages.get(messageKey);
-        if (messagesValues == null) this.messages.put(messageKey, messagesValues = new ArrayList<>());
+    protected boolean putMessages(final String messageKey, final Collection<String> messageValue) {
+        Collection<String> messagesValues = this.getMessages().get(messageKey);
+        if (messagesValues == null) this.getMessages().put(messageKey, messagesValues = new ArrayList<>());
         return messagesValues.addAll(messageValue);
     }
 
-    public Map<String, List<String>> getMessages() {
-        Map<String, List<String>> copy = new LinkedHashMap<>();
-        this.messages.forEach((k, v) -> copy.put(k, new ArrayList<String>(v)));
+    @Override
+    public boolean hasMessages() {
+        return !this.getMessages().isEmpty();
+    }
+
+    @Override
+    public Map<String, Collection<String>> getResult() {
+        Map<String, Collection<String>> copy = new LinkedHashMap<>();
+        this.getMessages().forEach((k, v) -> copy.put(k, new ArrayList<String>(v)));
         return copy;
     }
 
+    private Map<String, Collection<String>> getMessages() {
+        return this.messages;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("\n{\n");
+        this.getMessages().forEach((k, v) -> {
+            builder.append("\t").append('"').append(k).append('"').append(": ").append("[\n");
+            v.forEach(e -> builder.append("\t\t").append('"').append(e).append('"').append(",\n"));
+            builder.replace(builder.lastIndexOf(","), builder.lastIndexOf(",") + 1, "");
+            builder.append('\t').append("]\n");
+            if ("]".equals(builder.charAt(builder.length() - 1))) {
+                builder.append(',');
+            }
+            builder.append('\n');
+        });
+        builder.append("}");
+        return builder.toString();
+    }
 }
