@@ -34,14 +34,22 @@ public class Game {
         Pieces oppositionPieces = this.getBoard().getPieces(oppositionColor);
         if (this.getBoard().getPieces(oppositionColor).isChecked()) {
             if (oppositionPieces.isMate()) {
-                this.setStatus(PieceColor.WHITE.equals(move.getTurnColor()) ?
-                        GameStatus.WHITE_WIN : GameStatus.BLACK_WIN);
+                this.setStatus(
+                        PieceColor.WHITE.equals(move.getTurnColor()) ?
+                                GameStatus.WHITE_WIN : GameStatus.BLACK_WIN);
             }
         }
 
         if (this.isActive() && this.getBoard().hasInsufficientMatingMaterial()) {
-            this.setStatus(GameStatus.DRAW);
+            this.setStatus(GameStatus.DRAW_DUE_TO_INSUFFICIENT_MATERIAL);
         }
+
+        if (this.isActive() && oppositionPieces.isMate()) {
+            this.setStatus(
+                    PieceColor.WHITE.equals(move.getTurnColor()) ?
+                            GameStatus.BLACK_WIN_BY_STALE_MATE : GameStatus.WHITE_WIN_BY_STALE_MATE);
+        }
+
         return capturedPiece;
     }
 
