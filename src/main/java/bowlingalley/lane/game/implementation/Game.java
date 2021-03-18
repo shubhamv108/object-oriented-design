@@ -1,6 +1,6 @@
 package bowlingalley.lane.game.implementation;
 
-import bowlingalley.exceptions.GameException;
+import commons.exceptions.GameException;
 import bowlingalley.factories.IFactory;
 import bowlingalley.factories.implementations.SetFactory;
 import bowlingalley.lane.player.IPlayer;
