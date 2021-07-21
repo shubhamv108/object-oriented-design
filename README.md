@@ -1,5 +1,3 @@
-ToDo: Create generic board game using OOD.
-
 [Tic Tac Toe](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/tictactoe)                                                       
 [Snakes and Ladders](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/snakesladders)                                         
 [Vending Machine](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/vendingmachine)                                            
