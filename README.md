@@ -6,9 +6,8 @@ ToDo: Create generic board game using OOD.
 [Bowling Alley](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/bowlingalley)                                                 
 [Publisher Susbcriber](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/publishersubscriber)  
 [Object Pool](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/objectpool)                                                             
-[Chess](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chess)
-
-[Multi level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)
+[Chess](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chess)                                                                         
+[Multi Level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)
 
 
     OO Design Patterns
