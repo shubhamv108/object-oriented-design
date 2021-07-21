@@ -8,7 +8,7 @@ import chess.entities.board.pieces.Knight;
 import chess.entities.board.pieces.Pawn;
 import chess.entities.board.pieces.Queen;
 import chess.entities.board.pieces.Rook;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 import java.util.Date;
 import java.util.Iterator;

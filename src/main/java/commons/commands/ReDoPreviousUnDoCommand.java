@@ -1,9 +1,8 @@
 package commons.commands;
 
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 import commons.commands.invokers.ICommandInvoker;
-import commons.commands.invokers.IInvoker;
 
 public class ReDoPreviousUnDoCommand implements ICommand {
     private ICommandInvoker commandInvoker;

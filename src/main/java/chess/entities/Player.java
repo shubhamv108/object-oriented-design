@@ -1,6 +1,6 @@
 package chess.entities;
 
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 public class Player {
     private User user;

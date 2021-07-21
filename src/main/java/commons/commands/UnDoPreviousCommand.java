@@ -1,6 +1,6 @@
 package commons.commands;
 
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 import commons.commands.invokers.ICommandInvoker;
 

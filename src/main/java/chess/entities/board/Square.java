@@ -2,7 +2,7 @@ package chess.entities.board;
 
 import chess.entities.board.enums.PieceColor;
 import chess.utils.SquareUtils;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 import java.util.Objects;
 import java.util.Optional;

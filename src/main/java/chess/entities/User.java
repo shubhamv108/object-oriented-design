@@ -1,7 +1,7 @@
 package chess.entities;
 
 import chess.enums.UserStatus;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 public class User {
     private String userName;

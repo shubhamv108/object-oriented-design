@@ -2,7 +2,7 @@ package chess.entities.board;
 
 import chess.entities.Game;
 import chess.entities.board.enums.PieceColor;
-import com.sun.tools.javac.util.Assert;
+import commons.exceptions.GameException;
 
 public class Move {
 
@@ -67,20 +67,20 @@ public class Move {
             /**
              * Move to validator
              */
-            Assert.checkNonNull(this.game, "Game cannot be null");
-            Assert.checkNonNull(this.from, "From square cannot be null");
-            Assert.checkNonNull(this.to, "To square cannot be null");
+            if (this.game == null) throw new GameException("Game cannot be null");
+            if (this.from == null) throw new GameException("From square cannot be null");
+            if (this.to == null)   throw new GameException("To square cannot be null");
             Square from = this.game.getBoard().getSquare(this.from);
             Square to = this.game.getBoard().getSquare(this.to);
-            Assert.checkNonNull(to, "Invalid to square");
-            Assert.checkNonNull(from, " Invalid from square");
+            if (to == null) throw new GameException("Invalid to square");
+            if (from == null) throw new GameException("Invalid from square");
             Piece piece = from.getPiece();
 
             if (!this.turnColor.equals(from.getPiece().getColor())) {
                 throw new IllegalStateException(String.format("%s to move", turnColor));
             }
 
-            Assert.checkNonNull(piece, "No piece at from square");
+            if (piece == null) throw new GameException("No piece at from square");
 
             if (!piece.canMoveTo(to)) {
                 throw new IllegalStateException(String.format("%s at %s cannot move to %s", piece, from, to));

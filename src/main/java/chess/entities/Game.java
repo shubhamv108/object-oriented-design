@@ -6,7 +6,7 @@ import chess.entities.board.Piece;
 import chess.entities.board.Pieces;
 import chess.entities.board.enums.PieceColor;
 import chess.enums.GameStatus;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 public class Game {
 

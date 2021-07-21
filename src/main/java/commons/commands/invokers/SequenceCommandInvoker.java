@@ -1,6 +1,6 @@
 package commons.commands.invokers;
 
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 import commons.commands.ReDoPreviousUnDoCommand;
 import commons.commands.ResetCommand;

@@ -1,7 +1,7 @@
 package chess.entities.board;
 
 import chess.entities.board.pieces.King;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;

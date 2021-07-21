@@ -4,18 +4,19 @@ import commons.ICommand;
 import commons.commands.ReDoCommand;
 import commons.commands.ReDoPreviousUnDoCommand;
 import commons.commands.ResetCommand;
+import commons.commands.UnDoCommand;
 import commons.commands.UnDoPreviousCommand;
 import commons.commands.models.ResetState;
-import commons.commands.UnDoCommand;
 
+import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Queue;
+
 
 public class QueuedCommandInvoker implements ICommandInvoker {
 
-    private final Queue<ICommand> commands = new LinkedList<>();
-    private final Queue<UnDoCommand> unDoCommands = new LinkedList<>();
-    private final Queue<ResetCommand> resetCommands = new LinkedList<>();
+    private final Deque<ICommand> commands = new LinkedList<>();
+    private final Deque<UnDoCommand> unDoCommands = new LinkedList<>();
+    private final Deque<ResetCommand> resetCommands = new LinkedList<>();
 
     @Override
     public void invoke(final ICommand command) {
@@ -48,7 +49,7 @@ public class QueuedCommandInvoker implements ICommandInvoker {
     @Override
     public void undo() {
         if (!this.getCommands().isEmpty()) {
-            ICommand command = this.getCommands().poll();
+            ICommand command = this.getCommands().pollLast();
             UnDoCommand unDoCommand = UnDoCommand.builder().withCommand(command).build();
             this.getUnDoCommands().offer(unDoCommand);
             unDoCommand.execute();
@@ -58,7 +59,7 @@ public class QueuedCommandInvoker implements ICommandInvoker {
     @Override
     public void redo() {
         if (!this.getUnDoCommands().isEmpty()) {
-            UnDoCommand unDoCommand = this.getUnDoCommands().poll();
+            UnDoCommand unDoCommand = this.getUnDoCommands().pollLast();
             ReDoCommand reDoCommand = ReDoCommand.builder().withUnDoCommand(unDoCommand).build();
             this.setCommand(reDoCommand);
         }
@@ -112,15 +113,15 @@ public class QueuedCommandInvoker implements ICommandInvoker {
         }
     }
 
-    private Queue<ICommand> getCommands() {
+    private Deque<ICommand> getCommands() {
         return this.commands;
     }
 
-    private Queue<UnDoCommand> getUnDoCommands() {
+    private Deque<UnDoCommand> getUnDoCommands() {
         return this.unDoCommands;
     }
 
-    private Queue<ResetCommand> getResetCommands() {
+    private Deque<ResetCommand> getResetCommands() {
         return this.resetCommands;
     }
 }

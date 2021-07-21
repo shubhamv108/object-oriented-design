@@ -1,7 +1,7 @@
 package chess.entities.board;
 
 import chess.utils.SquareUtils;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 import java.util.HashMap;
 import java.util.Map;

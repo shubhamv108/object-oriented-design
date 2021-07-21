@@ -1,7 +1,7 @@
 package chess.entities.board;
 
 import chess.entities.board.enums.PieceColor;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 
 public abstract class Piece {
 

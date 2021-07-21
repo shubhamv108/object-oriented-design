@@ -7,7 +7,7 @@ import chess.entities.Game;
 import chess.entities.board.enums.PieceColor;
 import chess.enums.ChessGameCommand;
 import chess.validators.ChessGameCommandInputValidator;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 import commons.IFactory;
 import commons.commands.ReDoPreviousUnDoCommand;

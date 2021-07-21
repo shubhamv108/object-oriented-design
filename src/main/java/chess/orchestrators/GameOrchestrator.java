@@ -2,7 +2,7 @@ package chess.orchestrators;
 
 import chess.entities.Game;
 import chess.factories.ChessGameCommandFactory;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 import commons.IFactory;
 import commons.commands.invokers.ICommandInvoker;

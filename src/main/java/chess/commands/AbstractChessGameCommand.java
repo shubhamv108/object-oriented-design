@@ -1,7 +1,7 @@
 package chess.commands;
 
 import chess.entities.Game;
-import commons.IBuilder;
+import commons.builder.IBuilder;
 import commons.ICommand;
 
 public abstract class AbstractChessGameCommand implements ICommand {
