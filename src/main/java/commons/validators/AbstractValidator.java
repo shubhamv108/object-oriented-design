@@ -7,7 +7,7 @@ import java.util.Map;
 
 public abstract class AbstractValidator<OBJECT> implements IValidator<OBJECT> {
 
-    private Map<String, Collection<String>> messages = new LinkedHashMap<>();
+    private final Map<String, Collection<String>> messages = new LinkedHashMap<>();
 
     protected boolean putMessage(final String messageKey, final String messageValueFormat) {
         return this.putMessage(messageKey, messageValueFormat, null);

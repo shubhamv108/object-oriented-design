@@ -38,7 +38,9 @@ public class Topic implements ITopic {
             if (this.subscribers.contains(subscriber)) {
                 synchronized (this) {
                     if (this.subscribers.contains(subscriber)) {
-                        if (subscriber.getCheckPoint() == this.events.size() - 1) wait();
+                        if (subscriber.getCheckPoint() == this.events.size() - 1) {
+                            wait();
+                        }
                         subscriber.notify(this.events.get(subscriber.getCheckPoint() + 1));
                     } else {
                         return;

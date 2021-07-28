@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface IValidator<OBJECT> {
+
+    String IS_EMPTY = "%s is empty.";
+
     IValidator<OBJECT> validate(OBJECT object);
     IValidator<OBJECT> validateOrThrowException(OBJECT object) throws GameException;
     boolean hasMessages();
