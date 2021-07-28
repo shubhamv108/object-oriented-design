@@ -6,7 +6,7 @@
 [Object Pool](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/objectpool)                                                             
 [Chess](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chess)                                                                         
 [Multi Level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)                                                   
-[Logger Library](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/logginglibrary)
+[Logger Library](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/loggerlibrary)
 
     OO Design Patterns
     - Builder Pattern
