@@ -7,7 +7,7 @@
 [Chess](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chess)                                                                         
 [Multi Level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)                                                   
 [Logger Library](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/loggerlibrary)
-[Task Planner](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/taskplanner))
+[Task Planner](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/taskplanner)
 
     OO Design Patterns
     - Builder Pattern
