@@ -3,9 +3,13 @@ package commons.validators;
 import commons.exceptions.GameException;
 import commons.exceptions.InvalidRequestException;
 
-public class AbstractRequestValidator<Request> extends AbstractValidator<Request> {
+public abstract class AbstractRequestValidator<Request> extends AbstractValidator<Request> {
     @Override
-    public IValidator<Request> validate(Request request) {
+    public IValidator<Request> validate(final Request request) {
+        if (request == null) {
+            this.putMessage("request", MUST_NOT_BE_EMPTY, "request");
+            return this;
+        }
         return this;
     }
 
@@ -13,8 +17,12 @@ public class AbstractRequestValidator<Request> extends AbstractValidator<Request
     public IValidator<Request> validateOrThrowException(final Request request) throws GameException {
         this.validate(request);
         if (this.hasMessages()) {
-            throw new InvalidRequestException(this.getResult());
+            this.throwException();
         }
         return this;
+    }
+
+    protected void throwException() {
+        throw new InvalidRequestException(this.getResult());
     }
 }
