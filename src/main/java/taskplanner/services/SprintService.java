@@ -26,7 +26,7 @@ public enum SprintService implements ISprintService {
     @Override
     public Sprint create(final Sprint sprint) {
         if (sprint.getName() == null || sprint.getName().length() == 0) throw new TaskPlannerException("sprint name is empty");
-        Sprint existing = this.sprintRepository.get(sprint.getName());
+        Sprint existing = this.sprintRepository.getByKey(sprint.getName());
         if (existing != null && !existing.isDeleted()) {
             throw new TaskPlannerException(String.format("Sprint with %s already exists", existing.getName()));
         }
@@ -39,7 +39,7 @@ public enum SprintService implements ISprintService {
         Sprint existing;
         try {
             TaskPlannerLockManager.get("SPRINT-" + sprint.getName()).writeLock().lock();
-            existing = this.sprintRepository.get(sprint.getName());
+            existing = this.sprintRepository.getByKey(sprint.getName());
             if (existing == null || existing.isDeleted())
                 throw new TaskPlannerException(String.format("Sprint with name %s does not exists", sprint.getName()));
             existing.delete();
@@ -57,7 +57,7 @@ public enum SprintService implements ISprintService {
         Sprint existing = null;
         try {
             TaskPlannerLockManager.get("SPRINT-" + sprint.getName()).writeLock().lock();
-            existing = this.sprintRepository.get(sprint.getName());
+            existing = this.sprintRepository.getByKey(sprint.getName());
             if (existing == null || existing.isDeleted())
                 throw new TaskPlannerException(String.format("Sprint with name %s does not exists", sprint.getName()));
             try {
@@ -84,7 +84,7 @@ public enum SprintService implements ISprintService {
         Sprint existing;
         try {
             TaskPlannerLockManager.get("SPRINT-" + sprint.getName()).writeLock().lock();
-            existing = this.sprintRepository.get(sprint.getName());
+            existing = this.sprintRepository.getByKey(sprint.getName());
             if (existing == null || existing.isDeleted())
                 throw new TaskPlannerException(String.format("Sprint with name %s does not exists", sprint.getName()));
             try {
@@ -104,7 +104,7 @@ public enum SprintService implements ISprintService {
 
     @Override
     public Sprint get(final String name) {
-        return this.sprintRepository.get(name);
+        return this.sprintRepository.getByKey(name);
     }
 
     @Override

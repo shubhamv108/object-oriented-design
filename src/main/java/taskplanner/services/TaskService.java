@@ -100,7 +100,7 @@ public enum TaskService implements ITaskService {
         }
         try {
             TaskPlannerLockManager.get(story).writeLock().lock();
-            final Story existingStory = this.storyRepository.get(story.getId());
+            final Story existingStory = this.storyRepository.getByKey(story.getId());
             if (existingStory == null) {
                 throw new TaskPlannerException("Invalid story");
             }
@@ -123,7 +123,7 @@ public enum TaskService implements ITaskService {
         if (bug.getId() == null) {
             throw new TaskPlannerException("{bug:{id:}} is empty");
         }
-        Bug existing = this.bugRepository.get(bug.getId());
+        Bug existing = this.bugRepository.getByKey(bug.getId());
         if (existing == null) {
             throw new TaskPlannerException(String.format("Invalid bug with {id:%s}", bug.getId()));
         }
@@ -145,7 +145,7 @@ public enum TaskService implements ITaskService {
         if (feature.getId() == null) {
             throw new TaskPlannerException("({feature:{id:}} is empty");
         }
-        final Feature existing = this.featureRepository.get(feature.getId());
+        final Feature existing = this.featureRepository.getByKey(feature.getId());
         if (existing == null) {
             throw new TaskPlannerException(String.format("Invalid feature with {id:%s}", feature.getId()));
         }
@@ -167,7 +167,7 @@ public enum TaskService implements ITaskService {
         if (story.getId() == null) {
             throw new TaskPlannerException("({story:{id:}} is empty");
         }
-        final Story existing = this.storyRepository.get(story.getId());
+        final Story existing = this.storyRepository.getByKey(story.getId());
         if (existing == null) {
             throw new TaskPlannerException(String.format("Invalid story with {id:%s}", existing.getId()));
         }
@@ -189,7 +189,7 @@ public enum TaskService implements ITaskService {
         if (subTrack.getId() == null) {
             throw new TaskPlannerException("({subTrack:{id:}} is empty");
         }
-        final SubTrack existing = this.subTrackRepository.get(subTrack.getId());
+        final SubTrack existing = this.subTrackRepository.getByKey(subTrack.getId());
         if (existing == null) {
             throw new TaskPlannerException(String.format("Invalid subTrack with {id:%s}", existing.getId()));
         }
@@ -220,17 +220,17 @@ public enum TaskService implements ITaskService {
 
     @Override
     public Bug get(final Bug bug) {
-        return this.bugRepository.get(bug.getId());
+        return this.bugRepository.getByKey(bug.getId());
     }
 
     @Override
     public Feature get(final Feature feature) {
-        return this.featureRepository.get(feature.getId());
+        return this.featureRepository.getByKey(feature.getId());
     }
 
     @Override
     public Story get(final Story story) {
-        return this.storyRepository.get(story.getId());
+        return this.storyRepository.getByKey(story.getId());
     }
 
 }

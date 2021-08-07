@@ -1,18 +1,22 @@
 package commons.entities;
 
-public class AbstractEntity<ID_TYPE> {
+import commons.builder.IBuilder;
 
-    private ID_TYPE id;
+import java.io.Serializable;
 
-    protected AbstractEntity(final ID_TYPE id) {
+public class AbstractEntity<ID> implements Serializable {
+
+    private ID id;
+
+    protected AbstractEntity(final ID id) {
         this.id = id;
     }
 
-    public final ID_TYPE getId() {
+    public final ID getId() {
         return this.id;
     }
 
-    public final void setId(final ID_TYPE id) {
+    public final void setId(final ID id) {
         this.id = id;
     }
 
@@ -20,4 +24,14 @@ public class AbstractEntity<ID_TYPE> {
     public String toString() {
         return "id=" + id;
     }
+
+    public static abstract class AbstractEntityBuilder<Entity, ID, EntityBuilder> implements IBuilder<Entity> {
+        protected ID id;
+
+        public EntityBuilder withId(final ID id) {
+            this.id = id;
+            return (EntityBuilder) this;
+        }
+    }
+
 }

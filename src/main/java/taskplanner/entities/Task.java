@@ -1,6 +1,6 @@
 package taskplanner.entities;
 
-import commons.builder.IBuilderTyped;
+import commons.builder.IBuilder;
 import commons.entities.AbstractEntity;
 
 import java.util.Date;
@@ -70,7 +70,7 @@ public abstract class Task extends AbstractEntity<Integer> {
                 ", sprint=" + Optional.ofNullable(sprint).map(Sprint::getId).orElse(null);
     }
 
-    protected static abstract class TaskBuilder<Task, TaskBuilder> implements IBuilderTyped<Task, TaskBuilder> {
+    protected static abstract class TaskBuilder<Task, TaskBuilder> implements IBuilder<Task> {
         protected Integer id;
         protected String title;
         protected User creator;

@@ -1,9 +1,9 @@
 package taskplanner.repositories;
 
-import commons.repositories.AbstractKVStoreRepository;
+import commons.repositories.AbstractHashKVStoreRepository;
 import taskplanner.entities.Bug;
 
-public class BugRepository extends AbstractKVStoreRepository<Integer, Bug> {
+public class BugRepository extends AbstractHashKVStoreRepository<Integer, Bug> {
 
     public static final BugRepository INSTANCE = new BugRepository();
 

@@ -1,10 +1,10 @@
 package taskplanner.repositories;
 
-import commons.repositories.AbstractKVStoreRepository;
+import commons.repositories.AbstractHashKVStoreRepository;
 import taskplanner.exceptions.UserAlreadyExistException;
 import taskplanner.entities.User;
 
-public class UserRepository extends AbstractKVStoreRepository<String, User> {
+public class UserRepository extends AbstractHashKVStoreRepository<String, User> {
 
     public static final UserRepository INSTANCE = new UserRepository();
 

@@ -1,12 +1,11 @@
 package commons.storage.kvstores;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
-public class KVStore<Key, Value> implements IKVStore<Key, Value> {
+public class OrderedKVStore<Key, Value> implements IKVStore<Key, Value> {
 
-    private final Map<Key, Value> store = new ConcurrentHashMap<>();
+    private final ConcurrentSkipListMap<Key, Value> store = new ConcurrentSkipListMap<>();
 
     @Override
     public Value put(final Key key, final Value value) {
@@ -21,5 +20,9 @@ public class KVStore<Key, Value> implements IKVStore<Key, Value> {
     @Override
     public Value remove(final Key key) {
         return this.store.remove(key);
+    }
+
+    public Collection<Value> getAllValuesAfterKey(final Key key) {
+        return this.store.tailMap(key).values();
     }
 }

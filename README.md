@@ -8,6 +8,7 @@
 [Multi Level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)                                                   
 [Logger Library](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/loggerlibrary)                                                       
 [Task Planner](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/taskplanner)
+[Chat](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chat)
 
     OO Design Patterns
     - Builder Pattern
@@ -23,3 +24,4 @@
     - Iterator Pattern
     - Pipes & Filters Pattern
     - Abstract Factory Pattern
+    - Facade Pattern

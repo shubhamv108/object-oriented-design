@@ -1,10 +1,10 @@
 package taskplanner.repositories;
 
-import commons.repositories.AbstractKVStoreRepository;
+import commons.repositories.AbstractHashKVStoreRepository;
 import taskplanner.exceptions.SprintAlreadyExistException;
 import taskplanner.entities.Sprint;
 
-public class SprintRepository extends AbstractKVStoreRepository<String, Sprint> {
+public class SprintRepository extends AbstractHashKVStoreRepository<String, Sprint> {
 
     public static final SprintRepository INSTANCE = new SprintRepository();
 

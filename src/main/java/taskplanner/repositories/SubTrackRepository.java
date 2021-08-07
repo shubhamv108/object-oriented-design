@@ -1,9 +1,9 @@
 package taskplanner.repositories;
 
-import commons.repositories.AbstractKVStoreRepository;
+import commons.repositories.AbstractHashKVStoreRepository;
 import taskplanner.entities.SubTrack;
 
-public class SubTrackRepository extends AbstractKVStoreRepository<Integer, SubTrack> {
+public class SubTrackRepository extends AbstractHashKVStoreRepository<Integer, SubTrack> {
 
     public static final SubTrackRepository INSTANCE = new SubTrackRepository();
 
