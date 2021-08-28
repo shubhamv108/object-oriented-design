@@ -3,6 +3,7 @@ package elevator.elevatorsystems;
 import commons.observer.IObserver;
 import elevator.car.ElevatorCar;
 import elevator.car.enums.ElevatorCarType;
+import elevator.elevatorsystems.enums.ElevatorSystemStatus;
 import elevator.elevatorsystems.state.ElevatorSystemStateObserver;
 import elevator.enums.Direction;
 import elevator.exceptions.UnServicedFloorForElevatorSystem;

@@ -1,20 +1,29 @@
 package elevator.elevatorsystems.state;
 
-import commons.observer.Observable;
-import elevator.car.ElevatorCar;
 import commons.observer.IObserver;
+import elevator.car.ElevatorCar;
+import elevator.elevatorsystems.state.models.FloorNumberDirection;
 import elevator.enums.Direction;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ElevatorSystemStateObserver implements IObserver<ElevatorCar> {
-    
-    private Map<Integer, Map<Direction, Set<ElevatorCar>>> state = new ConcurrentHashMap<>();
-    private Map<ElevatorCar, Integer> elevatorCarFloorNumber = new ConcurrentHashMap<>();
+
+    private final Map<Direction, ConcurrentSkipListMap<Integer, Collection<ElevatorCar>>> state;
+    private final Map<ElevatorCar, FloorNumberDirection> elevatorCarsFloorNumberDirections;
+
+    public ElevatorSystemStateObserver() {
+        this.state = new HashMap<>();
+        this.state.put(Direction.UP, new ConcurrentSkipListMap<>());
+        this.state.put(Direction.DOWN, new ConcurrentSkipListMap<>());
+        this.state.put(Direction.NONE, new ConcurrentSkipListMap<>());
+        this.elevatorCarsFloorNumberDirections = new ConcurrentHashMap<>();
+    }
 
     @Override
     public void notify(final ElevatorCar elevatorCar) {
@@ -23,24 +32,26 @@ public class ElevatorSystemStateObserver implements IObserver<ElevatorCar> {
             if (elevatorCar.isOn()) {
                 int floorNumber = elevatorCar.getCurrentFloorNumber();
                 Direction direction = elevatorCar.getDirection();
-
-                Map<Direction, Set<ElevatorCar>> directedElevatorCars = this.state.get(floorNumber);
-                if (directedElevatorCars == null) {
-                    this.state.put(floorNumber, directedElevatorCars = new HashMap<>());
-                }
-                Set<ElevatorCar> elevatorCars = directedElevatorCars.get(direction);
-                if (elevatorCars == null) {
-                    directedElevatorCars.put(direction, elevatorCars = new HashSet<>());
-                }
+                ConcurrentSkipListMap<Integer, Collection<ElevatorCar>> floorNumberElevatorCars
+                        = this.state.get(direction);
+                Collection<ElevatorCar> elevatorCars = floorNumberElevatorCars.get(floorNumber);
+                if (elevatorCars == null)
+                    floorNumberElevatorCars.put(floorNumber, elevatorCars = new CopyOnWriteArrayList<>());
                 elevatorCars.add(elevatorCar);
-                this.elevatorCarFloorNumber.put(elevatorCar, floorNumber);
+                FloorNumberDirection floorNumberDirection = this.elevatorCarsFloorNumberDirections.get(elevatorCar);
+                if (floorNumberDirection == null)
+                    this.elevatorCarsFloorNumberDirections.put(elevatorCar, floorNumberDirection = new FloorNumberDirection());
+                floorNumberDirection.setDirection(direction);
+                floorNumberDirection.setFloorNumber(floorNumber);
             }
         }
     }
     
     private void remove(final ElevatorCar elevatorCar) {
-        int currentFloorNumber = this.elevatorCarFloorNumber.get(elevatorCar);
-        this.state.get(currentFloorNumber).get(Direction.UP).remove(elevatorCar);
-        this.state.get(currentFloorNumber).get(Direction.DOWN).remove(elevatorCar);
+        FloorNumberDirection floorNumberDirection = this.elevatorCarsFloorNumberDirections.get(elevatorCar);
+        if (floorNumberDirection != null) {
+            this.state.get(floorNumberDirection.getDirection()).get(floorNumberDirection.getFloorNumber())
+                    .remove(elevatorCar);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package elevator.elevatorsystems;
+package elevator.elevatorsystems.enums;
 
 public enum ElevatorSystemStatus {
 
