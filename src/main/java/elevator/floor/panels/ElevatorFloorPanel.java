@@ -1,6 +1,7 @@
 package elevator.floor.panels;
 
 import elevator.car.ElevatorCar;
+import elevator.elevatorsystems.state.ElevatorSystemStateObserver;
 import elevator.enums.Direction;
 import elevator.exceptions.ButtonNotActiveForDirection;
 import elevator.exceptions.ButtonNotActiveInElevatorFloorPanelForFloorNumber;
