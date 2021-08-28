@@ -1,6 +1,7 @@
 package elevator.car;
 
 import commons.observer.Observable;
+import commons.statemachines.OnOffStateMachine;
 import elevator.car.components.ElevatorCarDoor;
 import elevator.car.components.ElevatorCarFan;
 import elevator.car.components.ElevatorCarLight;
@@ -184,19 +185,19 @@ public class ElevatorCar extends Observable<ElevatorCar> {
     }
 
     public void onLight() {
-        this.light.open();
+        this.light.on();
     }
 
     public void offLight() {
-        this.light.close();
+        this.light.off();
     }
 
     public void onFan() {
-        this.light.open();
+        this.fan.on();
     }
 
     public void offFan() {
-        this.light.close();
+        this.fan.off();
     }
 
     public void on() {

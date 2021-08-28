@@ -1,14 +1,6 @@
 package elevator.car.components;
 
-public class ElevatorCarLight {
-    private boolean isOn;
+import commons.statemachines.OnOffStateMachine;
 
-    public boolean open() {
-        return this.isOn = true;
-    }
-
-    public boolean close() {
-        return this.isOn = false;
-    }
-
+public class ElevatorCarLight extends OnOffStateMachine {
 }
