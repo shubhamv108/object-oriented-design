@@ -14,7 +14,7 @@ public abstract class AbstractRequestValidator<Request> extends AbstractValidato
     }
 
     @Override
-    public IValidator<Request> validateOrThrowException(final Request request) throws GameException {
+    public IValidator<Request> validateOrThrowException(final Request request) {
         this.validate(request);
         if (this.hasMessages()) {
             this.throwException();

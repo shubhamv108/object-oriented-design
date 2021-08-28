@@ -15,14 +15,14 @@ public abstract class AbstractValidator<OBJECT> implements IValidator<OBJECT> {
 
     protected boolean putMessage(final String messageKey, final String messageValueFormat, final Object... messageValueArguments) {
         String messageValue = String.format(messageValueFormat, messageValueArguments);
-        Collection<String> messagesValues = this.getMessages().get(messageKey);
-        if (messagesValues == null) this.getMessages().put(messageKey, messagesValues = new ArrayList<>());
+        Collection<String> messagesValues = this.messages.get(messageKey);
+        if (messagesValues == null) this.messages.put(messageKey, messagesValues = new ArrayList<>());
         return messagesValues.add(messageValue);
     }
 
     protected boolean putMessages(final String messageKey, final Collection<String> messageValue) {
-        Collection<String> messagesValues = this.getMessages().get(messageKey);
-        if (messagesValues == null) this.getMessages().put(messageKey, messagesValues = new ArrayList<>());
+        Collection<String> messagesValues = this.messages.get(messageKey);
+        if (messagesValues == null) this.messages.put(messageKey, messagesValues = new ArrayList<>());
         return messagesValues.addAll(messageValue);
     }
 
@@ -34,7 +34,7 @@ public abstract class AbstractValidator<OBJECT> implements IValidator<OBJECT> {
     @Override
     public Map<String, Collection<String>> getResult() {
         Map<String, Collection<String>> copy = new LinkedHashMap<>();
-        this.getMessages().forEach((k, v) -> copy.put(k, new ArrayList<String>(v)));
+        this.messages.forEach((k, v) -> copy.put(k, new ArrayList<String>(v)));
         return copy;
     }
 
