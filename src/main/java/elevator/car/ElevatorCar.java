@@ -115,7 +115,8 @@ public class ElevatorCar extends Observable<ElevatorCar> {
             if (nextFloor == null) {
                 if (!this.scheduledStopFloors.isEmpty()) {
                     this.direction = Direction.UP.equals(this.direction)
-                            ? Direction.DOWN : Direction.UP;
+                            ? Direction.DOWN
+                            : Direction.UP;
                     this.notifyObservers();
                 }
             } else {
