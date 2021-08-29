@@ -9,13 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -85,13 +80,13 @@ public class ElevatorSystemStateObserver implements IObserver<ElevatorCar> {
             Map.Entry<Integer, Collection<ElevatorCar>> noneDirectionLowerEntry
                     = this.state.get(Direction.NONE).lowerEntry(noneDirectionLowerEntryCurrentFloor);
             Map.Entry<Integer, Collection<ElevatorCar>> upDirectionHigherEntry
-                    = this.state.get(Direction.NONE).higherEntry(upDirectionHigherEntryCurrentFloor);
+                    = this.state.get(Direction.UP).higherEntry(upDirectionHigherEntryCurrentFloor);
             Map.Entry<Integer, Collection<ElevatorCar>> upDirectionLowerEntry
-                    = this.state.get(Direction.NONE).lowerEntry(upDirectionLowerEntryCurrentFloor);
+                    = this.state.get(Direction.UP).lowerEntry(upDirectionLowerEntryCurrentFloor);
             Map.Entry<Integer, Collection<ElevatorCar>> downDirectionHigherEntry
-                    = this.state.get(Direction.NONE).higherEntry(downDirectionHigherEntryCurrentFloor);
+                    = this.state.get(Direction.DOWN).higherEntry(downDirectionHigherEntryCurrentFloor);
             Map.Entry<Integer, Collection<ElevatorCar>> downDirectionLowerEntry
-                    = this.state.get(Direction.NONE).lowerEntry(downDirectionLowerEntryCurrentFloor);
+                    = this.state.get(Direction.DOWN).lowerEntry(downDirectionLowerEntryCurrentFloor);
             int noneDirectionLowerDistance  = floorNumber - noneDirectionLowerEntry.getKey();
             int noneDirectionHigherDistance = noneDirectionLowerEntry.getKey() - floorNumber;
             int upDirectionLowerDistance = floorNumber - upDirectionLowerEntry.getKey();

@@ -1,16 +1,87 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
-group 'com.design'
-version '1.0-SNAPSHOT'
-
+group 'design.object_oriented'
+version '0.1'
 sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+jacoco { //Please do not change this
+    toolVersion = "0.8.4"
+    reportsDir = file("$buildDir/jacoco")
+}
+
+jacocoTestReport { //Please do not change this
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled false
+        xml.destination file("./jacoco.xml")
+    }
+}
+
+jar {
+//    archiveBaseName = 'object_oriented_design' //Please do not change this final artifact name
+//    manifest {
+//        attributes 'Main-Class' : '' //Change this to the main class of your program which will be executed
+//    }
+    // To create a single jar with all dependencies.
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}
+
+test { ///Please do not change this
+    useJUnitPlatform()
+    testLogging {
+        events "PASSED", "SKIPPED", "FAILED", "STANDARD_ERROR"
+    }
+    finalizedBy jacocoTestReport // report is always generated after tests run
+    afterSuite { desc, result ->
+        if (!desc.parent)
+            println("${result.resultType} " +
+                    "(${result.testCount} tests, " +
+                    "${result.successfulTestCount} successes, " +
+                    "${result.failedTestCount} failures, " +
+                    "${result.skippedTestCount} skipped)")
+    }
+}
+
 
 repositories {
     mavenCentral()
 }
 
+//Add your dependencies here
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation(
+            'com.google.guava:guava:30.1.1-jre'
+    )
+    compileOnly (
+            'org.projectlombok:lombok:1.18.20'
+    )
+    annotationProcessor (
+            'org.projectlombok:lombok:1.18.20'
+    )
+    testCompileOnly (
+            'org.projectlombok:lombok:1.18.20'
+    )
+    testAnnotationProcessor (
+            'org.projectlombok:lombok:1.18.20'
+    )
+    testImplementation(
+            'junit:junit:4.13',
+            'org.junit.jupiter:junit-jupiter-api:5.7.2',
+            'org.junit.jupiter:junit-jupiter-engine:5.7.2',
+            'org.junit.vintage:junit-vintage-engine:5.7.2',
+            'org.mockito:mockito-core:3.12.0',
+            'org.junit.platform:junit-platform-runner:1.7.2',
+            'org.mockito:mockito-junit-jupiter:3.12.0'
+    )
 }

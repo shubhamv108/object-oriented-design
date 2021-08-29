@@ -1,9 +1,8 @@
 package chat.entities;
 
 import commons.entities.AbstractEntity;
-import commons.observer.IObservable;
 
-public class User extends AbstractEntity<String> implements IObservable {
+public class User extends AbstractEntity<String> {
 
     private String name;
     private String mobileNumber;
