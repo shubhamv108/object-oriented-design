@@ -21,6 +21,7 @@ public class Spot {
             return null;
         }
         Vehicle vehicle = this.vehicle;
+        vehicle.setSpot(null);
         this.setVehicle(null);
         return vehicle;
     }

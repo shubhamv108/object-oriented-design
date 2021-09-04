@@ -7,6 +7,7 @@ public class Ticket {
 
     public Ticket(Vehicle vehicle, Spot spot) {
         this.vehicle = vehicle;
+        this.vehicle.setTicket(this);
         this.spot = spot;
     }
 
