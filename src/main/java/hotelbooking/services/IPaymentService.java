@@ -1,2 +1,7 @@
-package hotelbooking.services;public class IPaymentService {
+package hotelbooking.services;
+
+public class IPaymentService {
+
+
+
 }

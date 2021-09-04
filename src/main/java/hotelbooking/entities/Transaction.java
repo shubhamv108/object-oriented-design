@@ -1,8 +1,11 @@
-package hotelbooking;
+package hotelbooking.entities;
 
 public class Transaction {
 
     String id;
-    double amount;
+    BigDecimal amount;
+
+    private String transactionType;
+    private String transactionSubType;
 
 }

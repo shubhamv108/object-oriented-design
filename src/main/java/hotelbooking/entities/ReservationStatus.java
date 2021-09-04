@@ -1,4 +1,4 @@
-package hotelbooking;
+package hotelbooking.entities;
 
 public enum ReservationStatus {
 
