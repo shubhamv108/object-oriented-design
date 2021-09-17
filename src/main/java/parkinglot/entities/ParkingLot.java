@@ -70,11 +70,19 @@ public class ParkingLot {
         this.availableSpots.get(spot.getFloorNumber()).get(spot.getType()).add(spot);
     }
 
-    public int getOccupiedSpots() {
+    public int getTotalOccupiedSpots() {
         return this.occupiedSpots.size();
     }
 
     public int getOccupiedSpotsOnFloor(int floor) {
         return this.occupiedSpots.get(floor).size();
+    }
+
+    public List<Map<SpotType, TreeSet<Spot>>> getAvailableSpots() {
+        return availableSpots;
+    }
+
+    public List<Set<Spot>> getOccupiedSpots() {
+        return occupiedSpots;
     }
 }

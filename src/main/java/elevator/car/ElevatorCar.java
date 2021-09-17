@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ElevatorCar extends Observable<ElevatorCar> {
+public class ElevatorCar extends Observable {
 
     private ElevatorFloor currentFloor;
     private Direction direction;
