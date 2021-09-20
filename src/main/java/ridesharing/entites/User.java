@@ -1,7 +1,6 @@
 package ridesharing.entites;
 
 public class User {
-
     private String username;
     private Driver driver;
     private Rider rider;

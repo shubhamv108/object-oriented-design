@@ -25,7 +25,7 @@ public class NaturalOrderParkingStrategy implements IParkingStrategy {
     }
 
     @Override
-    public Spot park(SpotType spotType) {
+    public Spot markSpotOccupiedAndGet(SpotType spotType) {
         Spot spot = this.availableSpots
                 .get(spotType)
                 .first();

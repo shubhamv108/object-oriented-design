@@ -1,9 +1,13 @@
 package ridesharing.entites;
 
+import commons.observer.IObserver;
+import commons.observer.Observable;
 import ridesharing.entites.enums.TripStatus;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Trip {
     private Long id;

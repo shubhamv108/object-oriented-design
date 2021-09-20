@@ -1,9 +1,11 @@
 package ridesharing.entites;
 
+import commons.observer.IObserver;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class Driver {
+public class Driver implements IObserver<Booking> {
     private Long id;
     private final User user;
     private String vehicleRegistrationNumber;
@@ -13,7 +15,7 @@ public class Driver {
     private final Map<Long, Trip> trips = new HashMap<>();
     private final Map<Long, Booking> bookings = new HashMap<>();
 
-    public Driver(User user) {
+    public Driver(final User user) {
         this.user = user;
     }
 
@@ -43,5 +45,10 @@ public class Driver {
 
     public void setCurrentTrip(Trip currentTrip) {
         this.currentTrip = currentTrip;
+    }
+
+    @Override
+    public void notify(Booking booking) {
+
     }
 }

@@ -31,7 +31,7 @@ public class ParkingLotWithParkingStrategyForEachFloor {
         }
         Spot spot = this.parkingStrategiesForFloor
                 .stream()
-                .map(strategy -> strategy.park(spotType))
+                .map(strategy -> strategy.markSpotOccupiedAndGet(spotType))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);

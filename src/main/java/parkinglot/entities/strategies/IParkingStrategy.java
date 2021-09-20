@@ -6,7 +6,7 @@ import parkinglot.entities.Vehicle;
 
 public interface IParkingStrategy {
 
-    Spot park(SpotType spotType);
+    Spot markSpotOccupiedAndGet(SpotType spotType);
     Vehicle unPark(int spotNumber);
     Spot addSpot(SpotType type, int spotNumber);
 
