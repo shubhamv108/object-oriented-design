@@ -12,6 +12,6 @@ public class Shipment extends Observable {
     Address to;
     ShipmentStatus status;
     List<String> lastShipmentUpdate;
-    Date createtedAt;
+    Date createdAt;
     Date updatedAt;
 }

@@ -3,7 +3,6 @@ package shipmenttracking.models;
 import commons.observer.IObserver;
 
 public class Customer implements IObserver<Shipment> {
-
     String mobileNumber;
     String email;
 
