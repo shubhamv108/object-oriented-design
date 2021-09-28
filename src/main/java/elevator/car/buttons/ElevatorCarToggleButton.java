@@ -11,7 +11,7 @@ public abstract class ElevatorCarToggleButton extends ElevatorCarPanelButton {
         super(elevatorCarPanel);
         this.button = new ToggleButton() {
             @Override
-            protected void onPress() {
+            public void onPress() {
                 ElevatorCarToggleButton.this.onPress();
             }
         };

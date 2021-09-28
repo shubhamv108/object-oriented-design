@@ -7,5 +7,5 @@ public interface IButton {
 
     boolean isActive();
 
-    void onPress();
+    public void onPress();
 }

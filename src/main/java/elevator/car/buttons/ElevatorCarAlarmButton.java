@@ -18,6 +18,6 @@ public class ElevatorCarAlarmButton extends ElevatorCarPanelButton {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
     }
 }

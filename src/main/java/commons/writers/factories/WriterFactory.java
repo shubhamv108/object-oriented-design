@@ -19,10 +19,14 @@ public class WriterFactory implements IFactory<String, IWriter> {
     }
 
     @Override
-    public IWriter get(String input) throws IOException {
+    public IWriter get(String input) {
         IWriter writer;
         if (input != null && input.length() > 0) {
-            writer = FileWriter.of(input);
+            try {
+                writer = FileWriter.of(input);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         } else {
             writer = new ConsoleWriter();
         }

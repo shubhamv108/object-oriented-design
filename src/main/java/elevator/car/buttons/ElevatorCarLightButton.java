@@ -6,4 +6,9 @@ public class ElevatorCarLightButton extends ElevatorCarToggleButton {
     public ElevatorCarLightButton(final ElevatorCarPanel elevatorCarPanel) {
         super(elevatorCarPanel);
     }
+
+    @Override
+    public void onPress() {
+
+    }
 }

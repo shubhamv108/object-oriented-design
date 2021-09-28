@@ -1,6 +1,9 @@
 package commons.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +16,10 @@ import java.util.List;
 public class FileUtils {
 
     private FileUtils() {}
+
+    public BufferedReader getBufferedReader(String filePath) throws FileNotFoundException {
+        return null;
+    }
 
     private static class SingletonHolder {
         private static final FileUtils INSTANCE = new FileUtils();

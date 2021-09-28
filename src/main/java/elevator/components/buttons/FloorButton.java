@@ -11,7 +11,7 @@ public class FloorButton extends Button {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
 
     }
 }

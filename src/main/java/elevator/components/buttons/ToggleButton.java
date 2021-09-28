@@ -11,7 +11,7 @@ public class ToggleButton extends Button {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
 
     }
 }

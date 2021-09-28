@@ -1,5 +1,7 @@
 package hotelbooking.entities;
 
+import java.math.BigDecimal;
+
 public class Transaction {
 
     String id;

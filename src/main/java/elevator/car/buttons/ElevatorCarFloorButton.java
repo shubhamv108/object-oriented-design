@@ -10,7 +10,7 @@ public class ElevatorCarFloorButton extends ElevatorCarPanelButton {
         super(panel);
         this.button = new FloorButton(floorNumber) {
             @Override
-            protected void onPress() {
+            public void onPress() {
                 ElevatorCarFloorButton.this.onPress();
             }
         };
@@ -34,7 +34,7 @@ public class ElevatorCarFloorButton extends ElevatorCarPanelButton {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
         this.panel.getElevatorCar().scheduleStopOnFloor(this.button.getFloorNumber());
     }
 }

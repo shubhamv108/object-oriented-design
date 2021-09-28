@@ -9,7 +9,7 @@ public class ElevatorCarHelpCallButton extends ElevatorCarHelpPanelButton {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
         if (this.isPressed)
             this.panel.turnHelpOn();
         else

@@ -8,7 +8,7 @@ public class ElevatorCarDoorCloseButton extends ElevatorCarPanelButton {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
         this.panel.getElevatorCar().openDoor();
     }
 }

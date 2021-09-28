@@ -10,6 +10,8 @@ import loggerlibrary.sinks.implementations.ConsoleSink;
 import loggerlibrary.sinks.implementations.DBSink;
 import loggerlibrary.sinks.implementations.FileSink;
 
+import java.io.IOException;
+
 public class SinkFactory {
 
     private final SinkFactoryMaker sinkFactoryMaker = new SinkFactoryMaker();

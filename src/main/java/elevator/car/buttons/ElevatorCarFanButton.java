@@ -10,7 +10,7 @@ public class ElevatorCarFanButton extends ElevatorCarToggleButton {
     }
 
     @Override
-    protected void onPress() {
+    public void onPress() {
         if (this.isPressed)
             this.panel.getElevatorCar().onFan();
         else
