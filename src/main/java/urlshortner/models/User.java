@@ -9,7 +9,7 @@ public class User {
     private final String userName;
     private final Map<String, ShortUrl> shortUrls;
 
-    public User(String userName, List<ShortUrl> shortUrls) {
+    public User(String userName) {
         this.userName = userName;
         this.shortUrls = new ConcurrentHashMap<>();
     }

@@ -15,7 +15,7 @@ public class UserManager {
             synchronized (userName) {
                 user = this.users.get(userName);
                 if (user == null)
-                    this.users.put(userName, user = new User(userName, shortUrls));
+                    this.users.put(userName, user = new User(userName));
             }
         }
         return user;
