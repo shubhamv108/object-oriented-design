@@ -30,9 +30,8 @@ public class NaturalOrderParkingStrategy implements IParkingStrategy {
     public void makeSpotOccupied(Spot spot) {
         this.availableSpots.get(spot.getSpotType()).remove(spot);
         Map<Integer, Spot> floorSpots = this.occupiedSpot.get(spot.getFloorNUmber());
-        if (floorSpots == null) {
+        if (floorSpots == null)
             this.occupiedSpot.put(spot.getFloorNUmber(), floorSpots = new HashMap<>());
-        }
         floorSpots.put(spot.getSpotNumber(), spot);
     }
 

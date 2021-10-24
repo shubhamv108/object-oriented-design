@@ -1,5 +1,6 @@
 package amazon.search;
 
+import amazon.Category;
 import amazon.Product;
 
 import java.util.List;

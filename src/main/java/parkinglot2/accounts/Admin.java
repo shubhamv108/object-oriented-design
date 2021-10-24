@@ -1,5 +1,6 @@
 package parkinglot2.accounts;
 
+import parkinglot2.Address;
 import parkinglot2.DisplayBoard;
 import parkinglot2.Floor;
 import parkinglot2.Lot;

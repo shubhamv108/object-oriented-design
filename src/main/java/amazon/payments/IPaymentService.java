@@ -6,6 +6,6 @@ import amazon.payments.PaymentMode;
 
 public interface IPaymentService {
 
-    PaymentInfo makePayment(Order order, PaymentMode paymentMode) {}
+    PaymentInfo makePayment(Order order, PaymentMode paymentMode);
 
 }
