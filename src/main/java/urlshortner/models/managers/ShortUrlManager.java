@@ -8,6 +8,8 @@ import urlshortner.strategies.create.DefaultCreateStrategy;
 import urlshortner.strategies.create.ICreateStrategy;
 import urlshortner.strategies.generate.HashBasedGenerateShortUrlStrategy;
 import urlshortner.strategies.generate.IGenerateShortUrlStrategy;
+import urlshortner.strategies.validation.shorturl.enums.SEOValidationStrategy;
+import urlshortner.strategies.validation.shorturl.factory.SEOValidatorFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,8 +20,10 @@ public class ShortUrlManager {
     private final Map<String, ShortUrl> urls = new ConcurrentHashMap<>();
     private final Map<CreateStrategy, ICreateStrategy> createStrategies;
     private final IGenerateShortUrlStrategy generateShortUrlStrategy;
+    private final SEOValidatorFactory seoValidatorFactory;
 
     public ShortUrlManager() {
+        this.seoValidatorFactory = new SEOValidatorFactory();
         this.generateShortUrlStrategy = new HashBasedGenerateShortUrlStrategy();
         Map<CreateStrategy, ICreateStrategy> createStrategies = new HashMap<>();
         createStrategies.put(CreateStrategy.DEFAULT, new DefaultCreateStrategy(this.generateShortUrlStrategy, this));
@@ -27,9 +31,12 @@ public class ShortUrlManager {
         this.createStrategies = Collections.unmodifiableMap(createStrategies);
     }
 
-    public ShortUrl create(String shortUrl, String originalUrl, Long ttl, User user, CreateStrategy createStrategy, int shortUrlLength) {
+    public ShortUrl create(String shortUrl, String originalUrl, Long ttl, User user, CreateStrategy createStrategy,
+                           int shortUrlLength, SEOValidationStrategy seoValidationStrategy) {
         if (shortUrl == null || shortUrl.isBlank())
             shortUrl = this.generateShortUrlStrategy.generate(originalUrl, shortUrlLength);
+        else
+            this.seoValidatorFactory.get(seoValidationStrategy).validateOrThrow(shortUrl, shortUrlLength);
 
         ShortUrl result = null;
         if (this.urls.containsKey(shortUrl))

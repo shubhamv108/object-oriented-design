@@ -6,13 +6,13 @@ public class RandomCharacterGenerateShortUrlStrategy implements IGenerateShortUr
 
     private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+/=";
     private static final char[] CHARS = CHARACTERS.toCharArray();
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
 
     @Override
     public String generate(String originalUrl, int length) {
         StringBuilder builder = new StringBuilder();
         for (int i = 1; i <= length; i++)
-            builder.append(CHARS[random.nextInt(65)]);
+            builder.append(CHARS[RANDOM.nextInt(65)]);
         return builder.toString();
     }
 
