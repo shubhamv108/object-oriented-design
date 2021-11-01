@@ -1,4 +1,4 @@
-package ratelimiter.models;
+package ratelimit.models;
 
 import java.util.HashMap;
 import java.util.Map;

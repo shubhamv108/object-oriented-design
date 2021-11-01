@@ -1,4 +1,4 @@
-package ratelimiter.models;
+package ratelimit.models;
 
 public class Request {
     String serviceId;

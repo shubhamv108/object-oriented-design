@@ -1,4 +1,4 @@
-package ratelimiter.models;
+package ratelimit.models;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -6,16 +6,19 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitPlan {
     final String serviceId;
     final String apiName;
-    final TimeUnit timeUnit;
-    final Long time;
+    final Long durationInNanoseconds;
     final Long maxAllowedRequests;
     final RateLimitPlanType type;
 
-    public RateLimitPlan(String serviceId, String apiName, TimeUnit timeUnit, Long time, Long maxAllowedRequests, RateLimitPlanType type) {
+    public RateLimitPlan(final String serviceId,
+                         final String apiName,
+                         final TimeUnit timeUnit,
+                         final Long time,
+                         final Long maxAllowedRequests,
+                         final RateLimitPlanType type) {
         this.serviceId = serviceId;
         this.apiName = apiName;
-        this.timeUnit = timeUnit;
-        this.time = time;
+        this.durationInNanoseconds = TimeUnit.NANOSECONDS.convert(time, timeUnit);
         this.maxAllowedRequests = maxAllowedRequests;
         this.type = type;
     }
@@ -32,12 +35,12 @@ public class RateLimitPlan {
         return apiName;
     }
 
-    public Long getDurationInMilliseconds() {
-        return time;
-    }
-
     public Long getMaxAllowedRequests() {
         return maxAllowedRequests;
+    }
+
+    public Long getDurationInNanoseconds() {
+        return durationInNanoseconds;
     }
 
     @Override
