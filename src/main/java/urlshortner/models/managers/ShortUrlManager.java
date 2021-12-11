@@ -33,7 +33,8 @@ public class ShortUrlManager {
 
     public ShortUrl create(String shortUrl, String originalUrl, Long ttl, User user, CreateStrategy createStrategy,
                            int shortUrlLength, SEOValidationStrategy seoValidationStrategy) {
-        if (shortUrl == null || shortUrl.isBlank())
+        shortUrl = shortUrl.trim();
+        if (shortUrl != null && !shortUrl.isEmpty() && !shortUrl.contains("\\s"))
             shortUrl = this.generateShortUrlStrategy.generate(originalUrl, shortUrlLength);
         else
             this.seoValidatorFactory.get(seoValidationStrategy).validateOrThrow(shortUrl, shortUrlLength);
