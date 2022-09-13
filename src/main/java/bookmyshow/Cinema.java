@@ -15,6 +15,6 @@ public class Cinema {
     int id;
     Address address;
 
-    public Map<Date, Movie> getMovies(List<Date> dates) {}
-    public Map<Date, Show> getShows(List<Date> dates) {}
+    public Map<Date, Movie> getMovies(List<Date> dates) { return null; }
+    public Map<Date, Show> getShows(List<Date> dates) { return null; }
 }

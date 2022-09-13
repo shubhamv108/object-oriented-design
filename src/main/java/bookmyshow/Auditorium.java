@@ -11,5 +11,5 @@ public class Auditorium {
     List<Show> shows;
     Cinema cinema;
 
-    public boolean addShow(Show show) {}
+    public boolean addShow(Show show) { return false; }
 }

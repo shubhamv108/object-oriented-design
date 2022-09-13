@@ -23,6 +23,6 @@ public class Booking {
 
     PaymentInfo paymentInfo;
 
-    public PaymentInfo makePayment(PaymentMode paymentMode) {}
+    public PaymentInfo makePayment(PaymentMode paymentMode) { return null; }
 
 }

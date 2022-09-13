@@ -9,6 +9,6 @@ public class CinemaManager {
 
     Set<Cinema> theaters;
 
-    List<Cinema> getTheatersByCity(String city) {}
+    List<Cinema> getTheatersByCity(String city) { return null; }
 
 }

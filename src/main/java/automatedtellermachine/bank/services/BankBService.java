@@ -1,6 +1,9 @@
 package automatedtellermachine.bank.services;
 
+import automatedtellermachine.Customer;
 import automatedtellermachine.cards.CardInfo;
+import automatedtellermachine.transactions.Transaction;
+import automatedtellermachine.transactions.TransactionDetail;
 
 public class BankBService implements IBankService {
     @Override

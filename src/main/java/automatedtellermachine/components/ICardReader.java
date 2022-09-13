@@ -9,6 +9,6 @@ public interface ICardReader {
         return this.fetchCardDetails(card);
     }
 
-    private CardInfo fetchCardDetails(Card card) {}
+    private CardInfo fetchCardDetails(Card card) { return null; }
 
 }

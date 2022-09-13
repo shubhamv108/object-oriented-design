@@ -5,6 +5,6 @@ import parkinglot2.payments.PaymentMode;
 
 public class Exit extends Gate {
 
-    public Ticket pay(Ticket ticket, PaymentMode paymentMode) {}
+    public Ticket pay(Ticket ticket, PaymentMode paymentMode) { return null; }
 
 }

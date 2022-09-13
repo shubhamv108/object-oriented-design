@@ -10,6 +10,6 @@ public class CashDispenser {
 
     Map<CashType, List<Cash>> cashAvailable;
 
-    public Cash dispense(int amount) {}
+    public Cash dispense(int amount) { return null; }
 
 }

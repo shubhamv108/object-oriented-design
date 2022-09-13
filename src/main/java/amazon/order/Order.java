@@ -25,8 +25,8 @@ public class Order {
 
     IPaymentService paymentService;
 
-    public OrderStatus placeOrder() {}
-    public OrderStatus trackOrder() {}
+    public OrderStatus placeOrder() { return null; }
+    public OrderStatus trackOrder() { return null; }
     public void addOrderLogs() {}
-    public PaymentInfo makePayment(PaymentMode paymentMode) {}
+    public PaymentInfo makePayment(PaymentMode paymentMode) { return null; }
 }

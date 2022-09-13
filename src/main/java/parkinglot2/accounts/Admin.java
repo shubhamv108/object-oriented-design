@@ -8,11 +8,8 @@ import parkinglot2.Space;
 
 public class Admin extends Account {
 
-    public Lot createLot(String name, Address address) {}
-    public boolean addFloor(Lot lot, Floor floor) {}
-    public boolean addSpace(Floor floor, Space space) {}
-    public boolean addDisplayBoard(Floor floor, DisplayBoard displayBoard) {}
-    .
-    .
-    .
+    public Lot createLot(String name, Address address) {return null;}
+    public boolean addFloor(Lot lot, Floor floor) {return false;}
+    public boolean addSpace(Floor floor, Space space) {return false;}
+    public boolean addDisplayBoard(Floor floor, DisplayBoard displayBoard) {return false;}
 }

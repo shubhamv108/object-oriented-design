@@ -11,6 +11,6 @@ public class Buyer extends User {
     List<Order> orders;
 
     public void addReview(Review review) {}
-    public Order placeOrder(Cart cart) {}
+    public Order placeOrder(Cart cart) { return null; }
 
 }

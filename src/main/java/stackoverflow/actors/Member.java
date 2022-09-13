@@ -21,9 +21,9 @@ public class Member extends User {
     List<Comment> comments;
     int reputation;
 
-    public Question addQuestion(Question question) {}
-    public Answer addAnswer(Question question, Answer answer) {}
-    public Comment addComment(AbstractCommentable commentable, Comment comment) {}
+    public Question addQuestion(Question question) { return null; }
+    public Answer addAnswer(Question question, Answer answer) { return null; }
+    public Comment addComment(AbstractCommentable commentable, Comment comment) { return null; }
     public void vote(AbstractVotable votable, VoteType voteType) {}
     public void addTag(Question question, Tag tag) {}
     public void flag(AbstractVotable votable) {}

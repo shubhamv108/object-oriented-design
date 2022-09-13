@@ -12,8 +12,8 @@ public class Member extends AbstractMember {
     List<Reservation> reservations;
     MemberCard memberCard;
 
-    public boolean canCheckoutBooks(int countOfBooks) {}
-    private int getTotalCheckedOutBooks() {}
+    public boolean canCheckoutBooks(int countOfBooks) { return false; }
+    private int getTotalCheckedOutBooks() { return -1; }
 
-    public boolean payFine(BookItem bookItem, Reservation reservation) {}
+    public boolean payFine(BookItem bookItem, Reservation reservation) { return false; }
 }

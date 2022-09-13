@@ -16,11 +16,11 @@ public class Lot {
 
     String name;
 
-    public boolean addFloor(Floor floor) {}
-    public boolean addEntry(Entry entry) {}
-    public boolean addExit(Exit exit) {}
+    public boolean addFloor(Floor floor) { return false; }
+    public boolean addEntry(Entry entry) { return false; }
+    public boolean addExit(Exit exit) {  return  false; }
 
-    public boolean isParkingAvailable(Vehicle vehicle) {}
+    public boolean isParkingAvailable(Vehicle vehicle) { return false; }
     public void updateAttendent(Attendent attendent, int gateId) {}
 
 }

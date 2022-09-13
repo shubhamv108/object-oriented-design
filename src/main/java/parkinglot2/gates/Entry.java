@@ -5,6 +5,6 @@ import parkinglot.models.Vehicle;
 
 public class Entry extends Gate {
 
-    public Ticket getParkingTicket(Vehicle vehicle) {}
+    public Ticket getParkingTicket(Vehicle vehicle) { return null; }
 
 }

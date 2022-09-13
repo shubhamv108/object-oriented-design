@@ -11,9 +11,9 @@ public class SearchService {
 
     CinemaManager cinemaManager;
 
-    public List<Movie> searchMoviesByNames(String name) {}
-    public List<Movie> searchMoviesByGenre(Genre genre) {}
-    public List<Movie> searchMoviesByLanguage(String language) {}
-    public List<Movie> searchMoviesByDate(Date releaseDate) {}
+    public List<Movie> searchMoviesByNames(String name) { return null; }
+    public List<Movie> searchMoviesByGenre(Genre genre) {  return null; }
+    public List<Movie> searchMoviesByLanguage(String language) { return null; }
+    public List<Movie> searchMoviesByDate(Date releaseDate) { return null; }
 
 }

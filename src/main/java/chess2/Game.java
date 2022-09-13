@@ -14,8 +14,8 @@ public class Game {
     List<Move> moves;
     GameStatus status;
 
-    public boolean playerMove(CellPosition from, CellPosition to, Piece piece) {}
-    public boolean endGame() {}
+    public boolean playerMove(CellPosition from, CellPosition to, Piece piece) { return false; }
+    public boolean endGame() { return false; }
     private void changeTurn() {}
 
 }

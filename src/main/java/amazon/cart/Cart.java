@@ -8,9 +8,9 @@ public class Cart {
     List<Item> items;
     double cartValue;
 
-    public boolean addItem(Item item) {}
-    public boolean updateItem(Item item) {}
-    public boolean deletetem(Item item) {}
+    public boolean addItem(Item item) { return false; }
+    public boolean updateItem(Item item) { return false; }
+    public boolean deletetem(Item item) { return false; }
     public void checkout() {}
 
     public List<Item> getItems() {

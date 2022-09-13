@@ -12,8 +12,8 @@ public class Attendent extends Account {
     Payment paymentService;
     Gate gate;
 
-    public boolean processVehicleEntry(Vehicle vehicle) {}
-    public PaymentInfo processPayment(Ticket ticket, PaymentMode paymentMode) {}
+    public boolean processVehicleEntry(Vehicle vehicle) { return false; }
+    public PaymentInfo processPayment(Ticket ticket, PaymentMode paymentMode) { return null; }
 
     public void setGate(Gate gate) {
         this.gate = gate;

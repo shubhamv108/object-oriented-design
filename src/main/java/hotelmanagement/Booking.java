@@ -1,6 +1,7 @@
 package hotelmanagement;
 
 import hotelmanagement.actors.Guest;
+import hotelmanagement.charges.BaseRoomCharge;
 import hotelmanagement.rooms.Room;
 import notificationservice.NotificationService;
 

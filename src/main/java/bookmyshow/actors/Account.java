@@ -10,4 +10,7 @@ public class Account {
     String email;
     Address address;
 
+    public String getEmail() {
+        return email;
+    }
 }

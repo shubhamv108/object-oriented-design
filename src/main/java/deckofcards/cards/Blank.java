@@ -3,6 +3,10 @@ package deckofcards.cards;
 import deckofcards.suits.Suit;
 
 public class Blank extends Card {
+
+    private Integer value;
+    private Suit suit;
+
     public Blank() {
         super(null, null);
     }

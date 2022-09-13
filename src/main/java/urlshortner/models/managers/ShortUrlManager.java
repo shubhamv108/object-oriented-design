@@ -49,7 +49,7 @@ public class ShortUrlManager {
             }
 
         if (result == null)
-            this.createStrategies.get(createStrategy)
+            result = this.createStrategies.get(createStrategy)
                     .handleForExisting(shortUrl, originalUrl, ttl, user, shortUrlLength);
         return result;
     }

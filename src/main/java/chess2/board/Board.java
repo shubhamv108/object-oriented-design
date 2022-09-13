@@ -8,5 +8,5 @@ public class Board {
     List<List<Cell>> cells;
 
     public void reset() {}
-    public boolean updateBoard(Move move) {}
+    public boolean updateBoard(Move move) { return false; }
 }
