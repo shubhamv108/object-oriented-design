@@ -5,8 +5,8 @@ plugins {
 
 group 'design.object_oriented'
 version '0.1'
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 1.17
+targetCompatibility = 1.17
 
 jacoco { //Please do not change this
     toolVersion = "0.8.4"
@@ -61,27 +61,27 @@ repositories {
 //Add your dependencies here
 dependencies {
     implementation(
-            'com.google.guava:guava:30.1.1-jre'
+            'com.google.guava:guava:31.1-jre'
     )
     compileOnly (
-            'org.projectlombok:lombok:1.18.20'
+            'org.projectlombok:lombok:1.18.24'
     )
     annotationProcessor (
-            'org.projectlombok:lombok:1.18.20'
+            'org.projectlombok:lombok:1.18.24'
     )
     testCompileOnly (
-            'org.projectlombok:lombok:1.18.20'
+            'org.projectlombok:lombok:1.18.24'
     )
     testAnnotationProcessor (
-            'org.projectlombok:lombok:1.18.20'
+            'org.projectlombok:lombok:1.18.24'
     )
     testImplementation(
-            'junit:junit:4.13',
-            'org.junit.jupiter:junit-jupiter-api:5.7.2',
-            'org.junit.jupiter:junit-jupiter-engine:5.7.2',
-            'org.junit.vintage:junit-vintage-engine:5.7.2',
-            'org.mockito:mockito-core:3.12.0',
-            'org.junit.platform:junit-platform-runner:1.7.2',
-            'org.mockito:mockito-junit-jupiter:3.12.0'
+            'junit:junit:4.13.2',
+            'org.junit.jupiter:junit-jupiter-api:5.9.0',
+            'org.junit.jupiter:junit-jupiter-engine:5.9.0',
+            'org.junit.vintage:junit-vintage-engine:5.9.0',
+            'org.junit.platform:junit-platform-runner:1.9.0',
+            'org.mockito:mockito-core:4.8.0',
+            'org.mockito:mockito-junit-jupiter:4.8.0'
     )
 }
