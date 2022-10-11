@@ -104,7 +104,6 @@ public class VendingMachine implements IVendingMachine {
         return items == null || items.size() == 0;
     }
 
-    @Override
     public void setCoinInsertedState(final Coin coin) {
         this.setInsertedCoin(coin);
         this.setMachineState(this.getCoinInsertedState());
@@ -144,25 +143,22 @@ public class VendingMachine implements IVendingMachine {
         return this.dispensingState;
     }
 
-    @Override
     public void setDispensingState(final Button button) {
         this.setPressedButton(button);
         this.setMachineState(this.getDispensingState());
     }
 
-    @Override
     public void setNoCoinInsertedState() {
         this.setInsertedCoin(null);
         this.setPressedButton(null);
         this.setMachineState(this.getNoCoinInsertedState());
     }
 
-    @Override
     public void setMachineState(final State machineState) {
         this.machineState = machineState;
     }
 
-    public void setInsertedCoin(final Coin insertedCoin) {
+    private void setInsertedCoin(final Coin insertedCoin) {
         this.insertedCoin = insertedCoin;
     }
 

@@ -18,14 +18,7 @@ public interface IVendingMachine extends ISubscription, IObservable {
 
     boolean isButtonActive(Button button) throws MachineWarning;
 
-    void setDispensingState(Button button);
-
-    void setNoCoinInsertedState() throws MachineWarning;
-    void setMachineState(State machineState) throws MachineWarning;
-
     boolean isEmpty();
-
-    void setCoinInsertedState(Coin coin) throws MachineWarning;
 
     Item dispense();
 }
