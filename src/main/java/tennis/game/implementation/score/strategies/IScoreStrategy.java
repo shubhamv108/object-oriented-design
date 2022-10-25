@@ -1,7 +1,7 @@
 package tennis.game.implementation.score.strategies;
 
-import tennis.game.implementation.TennisGame;
+import tennis.game.implementation.ITennisGamePlayersAndScore;
 
 public interface IScoreStrategy {
-    String getScore(TennisGame game);
+    String getScore(ITennisGamePlayersAndScore gamePlayers);
 }

@@ -12,7 +12,7 @@ public class ScoreStrategyFactory {
     private static final Map<ScoreStrategy, IScoreStrategy> SCORE_STRATEGIES = new HashMap<>();
 
     static {
-        SCORE_STRATEGIES.put(ScoreStrategy.WORD, new WordScoreStrategy());
+        SCORE_STRATEGIES.put(ScoreStrategy.SENTENCE, new WordScoreStrategy());
     }
 
     public static IScoreStrategy get(final ScoreStrategy scoreStrategy) {

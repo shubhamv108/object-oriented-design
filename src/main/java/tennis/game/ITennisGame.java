@@ -1,24 +1,12 @@
 package tennis.game;
 
+import tennis.game.implementation.score.strategies.enums.ScoreStrategy;
+
 public interface ITennisGame {
     void wonPoint(String playerName);
     String getScore();
 
-    boolean receiverHasAdvantage();
-
-    boolean serverHasAdvantage();
-
-    boolean receiverHasWon();
-
-    boolean serverHasWon();
-
-    boolean isDeuce();
-
-    String getServer();
-
-    String getReceiver();
-
-    int getServerScore();
-
-    int getReceiverScore();
+    default String getScore(ScoreStrategy scoreStrategy) {
+        return getScore();
+    }
 }

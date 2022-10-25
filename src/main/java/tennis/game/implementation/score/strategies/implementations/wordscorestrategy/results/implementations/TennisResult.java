@@ -1,6 +1,9 @@
-package tennis.game.implementation.score.strategies.implementations.wordscorestrategy.results;
+package tennis.game.implementation.score.strategies.implementations.wordscorestrategy.results.implementations;
 
-public class TennisResult {
+import tennis.game.implementation.score.strategies.implementations.wordscorestrategy.results.ITennisResult;
+
+public class TennisResult implements ITennisResult {
+
     private final String serverScore;
     private final String receiverScore;
 
@@ -10,6 +13,7 @@ public class TennisResult {
         this.receiverScore = receiverScore;
     }
 
+    @Override
     public String format() {
         if ("".equals(this.receiverScore))
             return this.serverScore;

@@ -4,34 +4,37 @@ import tennis.game.ITennisGame;
 import tennis.game.implementation.score.strategies.enums.ScoreStrategy;
 import tennis.game.implementation.score.strategies.factory.ScoreStrategyFactory;
 
-public class TennisGame implements ITennisGame {
+public class TennisGame implements ITennisGame, ITennisGamePlayersAndScore {
 
     private final String server;
     private final String receiver;
     private int serverScore;
     private int receiverScore;
 
-    private ScoreStrategy scoreStrategy;
-
     public TennisGame(final String server,
-                      final String receiver,
-                      final ScoreStrategy scoreStrategy) {
+                      final String receiver) {
         this.server = server;
         this.receiver = receiver;
-        this.scoreStrategy = scoreStrategy;
     }
 
     @Override
     public void wonPoint(String playerName) {
         if (server.equals(playerName))
             this.serverScore += 1;
-        else
+        else if (receiver.equals(playerName))
             this.receiverScore += 1;
+        else
+            throw new IllegalArgumentException("Invalid player name");
     }
 
     @Override
     public String getScore() {
-        return ScoreStrategyFactory.get(this.scoreStrategy).
+        return this.getScore(ScoreStrategy.SENTENCE);
+    }
+
+    @Override
+    public String getScore(ScoreStrategy scoreStrategy) {
+        return ScoreStrategyFactory.get(scoreStrategy).
                 getScore(this);
     }
 
