@@ -1,10 +1,16 @@
 package notificationservice.notifications;
 
-import notificationservice.Message;
+import notificationservice.messages.EmailMessage;
 
 public class EmailNotification implements INotification {
-    @Override
-    public boolean sendNotification(Message message) {
+
+    private final EmailMessage message;
+
+    public EmailNotification(EmailMessage message) {
+        this.message = message;
+    }
+
+    public boolean send() {
         return false;
     }
 }

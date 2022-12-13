@@ -2,6 +2,6 @@ package notificationservice.enums;
 
 public enum NotificationType {
 
-    EMAIL, WHATSAPP, SMS
+    EMAIL, WHATSAPP, SMS, FCM, APN
 
 }

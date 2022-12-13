@@ -1,10 +1,17 @@
 package notificationservice.notifications;
 
-import notificationservice.Message;
+
+import notificationservice.messages.WhatsappMessage;
 
 public class WhatsAppNotification implements INotification {
+    private final WhatsappMessage message;
+
+    public WhatsAppNotification(WhatsappMessage message) {
+        this.message = message;
+    }
+
     @Override
-    public boolean sendNotification(Message message) {
+    public boolean send() {
         return false;
     }
 }

@@ -1,10 +1,15 @@
 package notificationservice.notifications;
 
-import notificationservice.Message;
+import notificationservice.messages.SMSMessage;
 
 public class SMSNotification implements INotification {
-    @Override
-    public boolean sendNotification(Message message) {
+    private final SMSMessage message;
+
+    public SMSNotification(SMSMessage message) {
+        this.message = message;
+    }
+
+    public boolean send() {
         return false;
     }
 }
