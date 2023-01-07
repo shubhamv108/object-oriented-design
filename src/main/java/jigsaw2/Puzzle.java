@@ -37,6 +37,7 @@ public class Puzzle {
             while (iterator.hasNext()) {
                 Edge edge = iterator.next();
                 if (currentEdge.fitsWith(edge)) {
+                    currentEdge.attach(edge);
                     iterator.remove();
                     removeFromList(currentEdge);
                     currentEdge = this.nextExposedEdge(edge);
