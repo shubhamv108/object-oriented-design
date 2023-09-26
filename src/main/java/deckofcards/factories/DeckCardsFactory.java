@@ -18,11 +18,11 @@ public class DeckCardsFactory {
 
     private static final Set<Suit> SUITS =
             new HashSet<>(Arrays.asList(new Spade(), new Heart(), new Club(), new Diamond()));
-    private final SuitCardsFactory suitCardsFactory = new SuitCardsFactory();
+    private static final SuitCardsFactory SUIT_CARDS_FACTORY = new SuitCardsFactory();
 
     public ArrayList<Card> createAndGet() {
         return SUITS.stream().
-                map(this.suitCardsFactory::createAndGet).
+                map(SUIT_CARDS_FACTORY::createAndGet).
                 flatMap(Collection::stream).
                 collect(Collectors.toCollection(ArrayList::new));
     }

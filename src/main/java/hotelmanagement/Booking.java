@@ -3,7 +3,7 @@ package hotelmanagement;
 import hotelmanagement.actors.Guest;
 import hotelmanagement.charges.BaseRoomCharge;
 import hotelmanagement.rooms.Room;
-import notificationservice.NotificationService;
+//import notificationservice.NotificationService;
 
 import java.util.Date;
 import java.util.List;
@@ -16,5 +16,5 @@ public class Booking {
     List<Room> rooms;
     BaseRoomCharge charges;
 
-    NotificationService notificationService;
+//    NotificationService notificationService;
 }

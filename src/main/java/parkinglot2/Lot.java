@@ -12,7 +12,7 @@ public class Lot {
     Set<Entry> entries;
     Set<Exit> exits;
 
-    Address adress;
+    Address address;
 
     String name;
 

@@ -1,6 +1,4 @@
-package parkinglot2.accounts;
-
-import airlinemanagement.models.AccountStatus;
+package airlinemanagement.models;
 
 public class Account {
     private String email;
@@ -16,5 +14,9 @@ public class Account {
 
     public String getEmail() {
         return email;
+    }
+
+    public void updateStatus(final AccountStatus status) {
+        this.status = status;
     }
 }

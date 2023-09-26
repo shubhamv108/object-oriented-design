@@ -6,7 +6,7 @@ import parkinglot2.Floor;
 import parkinglot2.Lot;
 import parkinglot2.Space;
 
-public class Admin extends Account {
+public class Admin extends User {
 
     public Lot createLot(String name, Address address) {return null;}
     public boolean addFloor(Lot lot, Floor floor) {return false;}

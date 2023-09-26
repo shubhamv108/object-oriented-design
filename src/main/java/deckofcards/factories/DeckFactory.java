@@ -4,9 +4,9 @@ import deckofcards.Deck;
 
 public class DeckFactory {
 
-    private static final DeckCardsFactory cardsFactory = new DeckCardsFactory();
+    private static final DeckCardsFactory CARDS_FACTORY = new DeckCardsFactory();
 
     public Deck createAndGet() {
-        return new Deck(cardsFactory.createAndGet());
+        return new Deck(CARDS_FACTORY.createAndGet());
     }
 }

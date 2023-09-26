@@ -7,7 +7,7 @@ import parkinglot2.gates.Gate;
 import parkinglot2.payments.PaymentInfo;
 import parkinglot2.payments.PaymentMode;
 
-public class Attendent extends Account {
+public class Attendent extends User {
 
     Payment paymentService;
     Gate gate;
