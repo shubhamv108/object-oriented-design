@@ -1,5 +1,5 @@
 [Tic Tac Toe](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/tictactoe)                                                       
-[Snakes and Ladders](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/snakesladders)                                         
+[Snakes and Ladders](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/snakesladdrs2)                                         
 [Vending Machine](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/vendingmachine)                                            
 [Bowling Alley](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/bowlingalley)                                                 
 [Publisher Susbcriber](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/publishersubscriber)  
