@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class Board {
 
-    final Map<Integer, Integer> board = new HashMap<>();
+    private final Map<Integer, Integer> board = new HashMap<>();
 
-    final int sideLength;
+    private final int sideLength;
 
     int player1Pos = 0;
     int player2Pos = 0;
@@ -23,13 +23,16 @@ public class Board {
         Integer c;
         if (Player.X.equals(player)) {
             player1Pos += steps;
-            while ((c = board.get(player1Pos)) != null) player1Pos = c;
+            while ((c = board.get(player1Pos)) != null)
+                player1Pos = c;
         } else {
             player2Pos += steps;
-            while ((c = board.get(player2Pos)) != null) player2Pos = c;
+            while ((c = board.get(player2Pos)) != null)
+                player2Pos = c;
         }
-        if (player1Pos > (sideLength * sideLength)
-            || player1Pos > (sideLength * sideLength)) return player;
+        if (player1Pos > (sideLength * sideLength) || player1Pos > (sideLength * sideLength))
+            return player;
+
         return null;
     }
 
