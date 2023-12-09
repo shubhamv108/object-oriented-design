@@ -2,8 +2,11 @@ package hotelbooking.entities;
 
 public enum ReservationStatus {
 
-    CREATED,
+    REQUESTED,
+    PENDING,
     CONFIRMED,
-    CANCELLED
+    CHECKED_IN,
+    CANCELLED,
+    ABANDONED
 
 }

@@ -1,13 +1,24 @@
 package hotelbooking.entities;
 
-import java.math.BigDecimal;
-
 public class Transaction {
 
-    String id;
-    BigDecimal amount;
+    private final String transactionReferenceNumber;
 
-    private String transactionType;
-    private String transactionSubType;
+    private final Payment payment;
+
+    protected Transaction(
+            final String transactionReferenceNumber,
+            final Payment payment) {
+        this.transactionReferenceNumber = transactionReferenceNumber;
+        this.payment = payment;
+    }
+
+    public String getTransactionReferenceNumber() {
+        return transactionReferenceNumber;
+    }
+
+    public boolean execute() {
+        return true;
+    }
 
 }

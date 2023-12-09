@@ -1,6 +1,7 @@
 package hotelbooking.entities;
 
-public class RoomType {
-    String id;
-    Integer count;
+public enum RoomType {
+    SINGLE,
+    DOUBLE,
+    TRIPLE
 }

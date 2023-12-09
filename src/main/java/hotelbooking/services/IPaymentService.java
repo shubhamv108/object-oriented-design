@@ -1,7 +1,9 @@
 package hotelbooking.services;
 
-public class IPaymentService {
+import hotelbooking.entities.Payment;
 
+public interface IPaymentService {
 
+    Payment makePayment(int bookingId);
 
 }

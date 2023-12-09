@@ -5,22 +5,22 @@ plugins {
 
 group 'design.object_oriented'
 version '0.1'
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 jacoco { //Please do not change this
     toolVersion = "0.8.4"
-    reportsDir = file("$buildDir/jacoco")
+//    reportsDir = file("$buildDir/jacoco")
 }
 
-jacocoTestReport { //Please do not change this
-    reports {
-        xml.enabled true
-        csv.enabled false
-        html.enabled false
-        xml.destination file("./jacoco.xml")
-    }
-}
+//jacocoTestReport { //Please do not change this
+//    reports {
+//        xml.enabled true
+//        csv.enabled false
+//        html.enabled false
+//        xml.destination file("./jacoco.xml")
+//    }
+//}
 
 jar {
 //    archiveBaseName = 'object_oriented_design' //Please do not change this final artifact name
