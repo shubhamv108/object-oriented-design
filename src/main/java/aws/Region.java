@@ -1,10 +1,10 @@
 package aws;
 
-public enum Region {
-    AP_SOUTH_1("ap-south-1");
+import aws.vpc.AvailabilityZone;
 
-    private String region;
-    Region(final String region) {
-        this.region = region;
-    }
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
+public class Region {
+    private final Collection<AvailabilityZone> availabilityZones = new LinkedHashSet<>();
 }

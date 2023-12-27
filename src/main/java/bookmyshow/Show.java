@@ -1,8 +1,6 @@
 package bookmyshow;
 
-import bookmyshow.Auditorium;
 import bookmyshow.seats.showseat.ShowSeat;
-import movieticket.models.Movie;
 
 import java.util.Date;
 import java.util.List;

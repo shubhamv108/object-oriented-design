@@ -64,7 +64,7 @@ public class AsynchronousLogger extends SimpleLogger {
                 this.shutdownHookSleep();
             }
             if (Thread.State.WAITING.equals(this.messageProcessor.getState())) {
-                this.messageProcessor.stop();
+                this.messageProcessor.interrupt();
             }
             for (ExecutorService logSinkScheduler : this.logSinkScheduler) {
                 logSinkScheduler.shutdown();

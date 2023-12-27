@@ -1,7 +1,6 @@
 package bookmyshow.seats.showseat;
 
 import bookmyshow.seats.Seat;
-import movieticket.models.ShowSeatStatus;
 
 public class ShowSeat {
 

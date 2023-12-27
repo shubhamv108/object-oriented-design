@@ -1,8 +1,6 @@
 package bookmyshow.seats;
 
 import bookmyshow.Auditorium;
-import movieticket.models.SeatStatus;
-import movieticket.models.SeatType;
 
 public class Seat {
 

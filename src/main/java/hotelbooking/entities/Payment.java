@@ -27,6 +27,6 @@ public class Payment {
 
     private void updateStatus(final PaymentStatus status) {
         this.status = status;
-        this.reservation.update(this.status);
+//        this.reservation.update(this.status);
     }
 }
