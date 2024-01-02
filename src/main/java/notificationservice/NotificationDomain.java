@@ -1,6 +1,6 @@
 package notificationservice;
 
-import bookmyshow.actors.User;
+import notificationservice.actors.User;
 import notificationservice.enums.NotificationType;
 
 public class NotificationDomain {
