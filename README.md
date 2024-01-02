@@ -10,6 +10,7 @@
 [Task Planner](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/taskplanner)
 [Chat](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chat)
 [AirlineManagement](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/airlinemanagement)
+[MovieTicketBooking](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/bookmyshow/MovieOnlineTicket.java)
 
     OO Design Patterns
     - Builder Pattern
