@@ -5,10 +5,8 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.locks.*;
+import java.util.stream.*;
 
 class CacheEntry {
     private Object value;
@@ -125,17 +123,13 @@ enum Language {
 class Movie {
     private String id;
     private String name;
-    private Genre genre;
-    private Language language;
 
     private final List<MovieWeeklySchedule> weeklySchedules = new ArrayList<>();
     private final List<MovieCustomSchedule> customSchedules = new ArrayList<>();
 
-    public Movie(String id, String name, Genre genre, Language language) {
+    public Movie(String id, String name) {
         this.id = id;
         this.name = name;
-        this.genre = genre;
-        this.language = language;
     }
 
     public void add(MovieWeeklySchedule schedule) {
@@ -154,21 +148,11 @@ class Movie {
         return name;
     }
 
-    public Genre getGenre() {
-        return genre;
-    }
-
-    public Language getLanguage() {
-        return language;
-    }
-
     @Override
     public String toString() {
         return "Movie{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", genre=" + genre +
-                ", language=" + language +
                 ", weeklySchedules=" + weeklySchedules +
                 ", customSchedules=" + customSchedules +
                 '}';
@@ -179,8 +163,7 @@ class MovieManager {
     private final Map<String, Movie> data = new HashMap<>();
 
     public Movie add(Movie movie) {
-        final Movie newMovie = new Movie(
-                UUID.randomUUID().toString(), movie.getName(), movie.getGenre(), movie.getLanguage());
+        final Movie newMovie = new Movie(UUID.randomUUID().toString(), movie.getName());
 
         this.data.put(newMovie.getId(), newMovie);
         Cache.getInstance().put("Movie::" + newMovie.getId(), newMovie);
@@ -200,7 +183,6 @@ class MovieManager {
 class MovieScheduleManager {
 
     private final MovieManager movieManager;
-
     private final MovieShowManager movieShowManager;
 
     private final Map<String, LinkedHashSet<MovieWeeklySchedule>> cityMovieWeeklyScheduleIndex = new HashMap<>();
@@ -348,14 +330,10 @@ final class CustomSchedule {
 abstract class MovieSchedule {
 
     private String id;
-
     private String movieId;
-
     private String auditoriumId;
     private String multiplexId;
-
     private String cityId;
-
     private final Map<SeatType, BigDecimal> seatPrices = new HashMap<>();
 
     public MovieSchedule(String id, String movieId, String auditoriumId, String multiplexId, String cityId, Map<SeatType, BigDecimal> seatPrices) {
@@ -457,7 +435,6 @@ class MovieCustomSchedule extends MovieSchedule {
     }
 }
 
-
 class Multiplex {
     private String id;
 
@@ -512,7 +489,6 @@ class Auditorium {
     private String id;
     private String number;
     private String multiplexId;
-
     private List<Seat> seats = new ArrayList<>();
 
     public Auditorium(String id, String number, String multiplexId, List<Seat> seats) {
@@ -625,17 +601,12 @@ enum MovieShowStatus {
 
 class MovieShow {
     private String id;
-
     private Instant startInstant;
     private Duration duration;
-
     private String movieId;
     private String auditoriumId;
-
     private String multiplexId;
-
     private String cityId;
-
     private MovieShowStatus status;
 
     public MovieShow(String id, String movieId, String auditoriumId, String multiplexId, String cityId, Instant startInstant) {
@@ -693,9 +664,7 @@ class MovieShow {
 
 class MovieShowManager {
     private final Map<String, MovieShow> data = new HashMap<>();
-
     private final Map<String, Set<MovieShow>> cityIdIndex = new HashMap<>();
-
     private final Map<String, Map<String, Set<MovieShow>>> cityIdMovieIdIndex = new HashMap<>();
 
     public MovieShow add(MovieShow show) {
@@ -730,13 +699,9 @@ class MovieShowManager {
 }
 
 class SearchService {
-
     private final MovieShowManager movieShowManager;
-
     private final MovieScheduleManager movieScheduleManager;
-
     private final MovieManager movieManager;
-
     private final MultiplexManager multiplexManager;
 
     public SearchService(MovieShowManager movieShowManager, MovieScheduleManager movieScheduleManager, MovieManager movieManager, MultiplexManager multiplexManager) {
@@ -753,11 +718,11 @@ class SearchService {
     public List<Movie> getMoviesByCity(String cityId, Instant startInstant, Instant endInstant) {
         return Optional.ofNullable(this.movieScheduleManager.getMovieIdsByCityId(cityId, startInstant, endInstant))
                 .map(movieIds -> movieIds.stream()
-                    .map(movieId ->
-                            Optional.ofNullable(Cache.getInstance().<Movie>get("Movie::" + movieId))
-                                    .orElse(this.movieManager.get(movieId)))
-                    .filter(Objects::nonNull)
-                    .toList())
+                        .map(movieId ->
+                                Optional.ofNullable(Cache.getInstance().<Movie>get("Movie::" + movieId))
+                                        .orElse(this.movieManager.get(movieId)))
+                        .filter(Objects::nonNull)
+                        .toList())
                 .orElse(List.of());
     }
 
@@ -769,9 +734,9 @@ class SearchService {
         final Map<Multiplex, List<MovieShow>> multiplexShows = new HashMap<>();
         final List<MovieShow> shows = this.movieShowManager.getAllMovieShowsByCity(movieId, cityId, startDate, endDate);
         shows.forEach(show -> {
-           final Multiplex multiplex =
-                   Optional.ofNullable(Cache.getInstance().<Multiplex>get("Multiplex::" + show.getMultiplexId()))
-                    .orElse(this.multiplexManager.get(show.getMultiplexId()));
+            final Multiplex multiplex =
+                    Optional.ofNullable(Cache.getInstance().<Multiplex>get("Multiplex::" + show.getMultiplexId()))
+                            .orElse(this.multiplexManager.get(show.getMultiplexId()));
             if (multiplex != null)
                 multiplexShows.computeIfAbsent(multiplex, e -> new LinkedList<>()).add(show);
         });
@@ -779,24 +744,8 @@ class SearchService {
     }
 }
 
-class Account {
-    private String email;
-}
-
-class Person {
-    private String id;
-    private String name;
-
-    private Account account;
-}
-
-class User extends Person {
-
-}
-
 class SeatLock {
     private String name;
-
     private String owner;
 
     public SeatLock(String name, String owner) {
@@ -810,7 +759,6 @@ class SeatLock {
 }
 
 class SeatLockService {
-
     private final Map<String, Lock> locks = new ConcurrentHashMap<>();
 
     private static final long DEFAULT_SEAT_LOCK_TTL_IN_NS = (long) 1e11 * 3l;
@@ -884,9 +832,7 @@ class SeatLockService {
 
 }
 
-class SeatLockedException extends RuntimeException {
-
-}
+class SeatLockedException extends RuntimeException { }
 
 enum BookingStatus {
     PAYMENT_PENDING, CONFIRMED, CANCELLED
@@ -895,11 +841,8 @@ enum BookingStatus {
 class Booking {
     private String id;
     private final List<String> seats = new ArrayList<>();
-
     private String bookingPersonId;
-
     private BookingStatus status;
-
     private String movieShowId;
 
     public Booking(String id, Set<String> seats, String movieShowId, String bookingPersonId) {
@@ -957,9 +900,7 @@ class Booking {
 class BookingService {
     private final Map<String, Booking> bookings = new HashMap<>();
     private final Map<String, Set<Booking>> movieShowIdIndex = new HashMap<>();
-
     private final Map<String, Map<String, Set<Booking>>> movieShowIdSeatIdIndex = new HashMap<>();
-
     private final SeatLockService seatLockService;
 
     public BookingService(SeatLockService seatLockService) {
@@ -973,7 +914,6 @@ class BookingService {
         try {
             if (!this.seatLockService.lock(booking.getMovieShowId(), booking.getSeats(), booking.getBookingPersonId()))
                 return null;
-
             if (!this.areSeatsAvailable(booking.getMovieShowId(), booking.getSeats()))
                 return null;
 
@@ -1037,11 +977,8 @@ class BookingService {
 
 class MovieShowSeatDTO {
     private int seatNumber;
-
     private String status;
-
     private SeatType seatType;
-
     private String seatId;
 
     public MovieShowSeatDTO(int seatNumber, String status, SeatType seatType, String seatId) {
@@ -1070,13 +1007,9 @@ class MovieShowSeatDTO {
 }
 
 class SeatLayoutService {
-
     private final MovieShowManager movieShowManager;
-
     private final AuditoriumManager auditoriumManager;
-
     private final BookingService bookingService;
-
     private final SeatLockService seatLockService;
 
     public SeatLayoutService(MovieShowManager movieShowManager, AuditoriumManager auditoriumManager, BookingService bookingService, SeatLockService seatLockService) {
@@ -1125,7 +1058,7 @@ class Driver {
         System.out.println(auditorium1);
 
         final MovieManager movieManager = new MovieManager();
-        final Movie movieA = movieManager.add(new Movie(null, "MovieA", Genre.ANY, Language.HINDI));
+        final Movie movieA = movieManager.add(new Movie(null, "MovieA"));
         System.out.println(movieA);
 
         final MovieShowManager movieShowManager = new MovieShowManager();
@@ -1152,28 +1085,12 @@ class Driver {
 
         final List<MovieShow> movieShows = searchService.getMovieShows(movieA.getId(), cityA.id());
         System.out.println(movieShows);
-
         final SeatLockService seatLockService = new SeatLockService();
         final BookingService bookingService = new BookingService(seatLockService);
         final SeatLayoutService seatLayoutService = new SeatLayoutService(
                 movieShowManager, auditoriumManager, bookingService, seatLockService);
         final List<MovieShowSeatDTO> movieShowSeatDTOs = seatLayoutService.getSeatLayout(movieShows.get(0).getId());
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
-//        final Booking bookingA = bookingService.book(
-//                new Booking(
-//                        null,
-//                        Set.of(String.valueOf(movieShowSeatDTOs.get(0).getSeatId()), String.valueOf(movieShowSeatDTOs.get(1).getSeatId())),
-//                        movieShows.get(0).getId(),
-//                        "owner"
-//                )
-//        );
-//        System.out.println(bookingA);
-//        System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-//
-//        Thread.sleep(1000 * 301);
-//        System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         final Booking bookingB = bookingService.book(
                 new Booking(
                         null,
@@ -1184,14 +1101,11 @@ class Driver {
         );
         System.out.println(bookingB);
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         bookingService.updateStatus(bookingB.getId(), BookingStatus.CONFIRMED);
         System.out.println(bookingB);
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         Thread.sleep(1000 * 301);
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         final Booking bookingC = bookingService.book(
                 new Booking(
                         null,
@@ -1202,11 +1116,9 @@ class Driver {
         );
         System.out.println(bookingC);
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         bookingService.updateStatus(bookingB.getId(), BookingStatus.CANCELLED);
         System.out.println(bookingB);
         System.out.println(seatLayoutService.getSeatLayout(movieShows.get(0).getId()));
-
         final Booking bookingD = bookingService.book(
                 new Booking(
                         null,

@@ -1,6 +1,8 @@
 package ratelimit.strategies;
 
-public class TokenBucket implements IRateLimitStrategy {
+import ratelimit.IRateLimiter;
+
+public class TokenBucket implements IRateLimiter {
 
     private final long maxBucketSize;
     private final long refillRate;

@@ -1,10 +1,11 @@
 package ratelimit.strategies;
 
+import ratelimit.IRateLimiter;
 import ratelimit.models.RateLimitPlan;
 
 import java.util.TreeMap;
 
-public class SlidingWindowCounterRateLimit implements IRateLimitStrategy {
+public class SlidingWindowCounterRateLimit implements IRateLimiter {
     private final RateLimitPlan plan;
     private final TreeMap<Long, Integer> hits;
 
@@ -14,7 +15,7 @@ public class SlidingWindowCounterRateLimit implements IRateLimitStrategy {
     }
 
     public boolean allow() {
-        Long now = System.nanoTime();
+        final Long now = System.nanoTime();
         while (!this.hits.isEmpty() &&
                 this.hits.firstKey() < now - this.plan.getDurationInNanoseconds())
             this.hits.pollFirstEntry();
