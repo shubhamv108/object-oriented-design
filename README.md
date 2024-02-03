@@ -21,6 +21,7 @@
 [AirlineManagement](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/airlinemanagement)
 [MovieTicketBooking](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/bookmyshow/MovieOnlineTicket.java)
 [RateLimiter](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/ratelimiter)
+[Splitwise](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/splitwise2)
 
     OO Design Patterns
     - Builder Pattern
