@@ -8,34 +8,61 @@ MessageRecord
 - timestamp: Date
 
 Publisher
-- publish(record: MessageRecord): boolean
-
-Topic
-- messages: List<MessageRecord>
-+ isValidOffset(offset: int)
-+ getMessage(offset: int): MessageRecord
+- Publisher()
++ <n>getInstance(): Publisher</n>
++ publish(topicName: String, record: MessageRecord): boolean
 
 TopicManager
 - topics: Map<String, Topic>
+- TopicManager()
 + <n>getInstance(): TopicManager</n>
 - getOrCreateTopic(topicName: String): Topic
-+ getMessage(topicName: String, offset: int): MessageRecord
++ addMessage(topicName: String, message: MessageRecord): void
++ getMessageAtOffset(topicName: String, offset: int): MessageRecord
+
+Topic
+- messages: List<MessageRecord>
++ isValidMessageOffset(offset: int): boolean
++ addMessage(message: MessageRecord): void
+- getRandomMessageId(): String
++ getMessage(offset: int): MessageRecord
+
+Subscriber
+- Subscriber()
++ <n>getInstance(): Subscriber</n>
++ subscribe(topicName: String, subscriberId: String): void
++ poll(timeoutInMilliSeconds: long): MessageRecord
++ acknowledge(offset: int): boolean
+
+TopicSubscriberHandler
+- subscribers: Map<String, TopicSubscriber>
+- TopicSubscriberHandler()
++ <n>getInstance(): TopicSubscriberHandler</n>
++ subscribe(subscriberId: String, topicName: String): void
++ poll(subscriberId: String, timeoutInMilliSeconds: long): MessageRecord
++ commit(subscriberId: String, offset: int): boolean
++ setOffset(offset: int): boolean
 
 TopicSubscriber
 - subscriberId: String
 - topicName: String
 - offset: int
-+ setOffset(offset: int): void
++ setOffset(offset: int): boolean
++ poll(): MessageRecord
 
-TopicSubscriberHandler
-- subscribers: Map<String, TopicSubscriber>
-+ subscribe(subscriberId: String, topicName: String): TopicSubscriber
-+ poll(subscriberId: String, timeoutInMilliSeconds: long): MessageRecord
-+ commit(subscriberId: String, offset: int): boolean
-+ setOffset(offset: int): void
-+ <n>getInstance(): TopicSubscriberHandler</n>
+MessagePollerStrategyFactory
+- messagePoller: Map<MessagePollerStrategyType, MessagePoller>
+- MessagePollerStrategyFactory()
++ <n>getInstance(): MessagePollerStrategyFactory</n>
++ getMessagePoller(type: MessagePollerStrategyType): MessagePoller
 
-Subscriber
-- subscribe(topicName: String): String
-- poll(timeoutInMilliSeconds: long): MessageRecord
-- acknowledge(offset: int)
+MessagePollerStrategyType
++ DEFAULT
++ AUTO_ACKNOWLEDGE
+
+<<MessagePoller>>
++ poll(timeoutInMilliSeconds: long): MessageRecord
++ acknowledge(offset: int): boolean
+
+DefaultMessagePoller(MessagePoller)
+MessagePollerAutoAcknowledgeFacade(MessagePoller)
