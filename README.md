@@ -23,6 +23,7 @@
 [RateLimiter](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/ratelimiter)
 [Splitwise](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/splitwise2)
 [Pizza](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/pizza2)
+[CabBooking](https://github.com/shubhamv108/object-oriented-design/blob/main/src/main/java/cabbooking)
 
     OO Design Patterns
     - Builder Pattern
