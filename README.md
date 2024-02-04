@@ -11,7 +11,7 @@
 [Snakes and Ladders](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/snakesladdrs2)                                         
 [Vending Machine](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/vendingmachine)                                            
 [Bowling Alley](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/bowlingalley)                                                 
-[Publisher Susbcriber](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/publishersubscriber)  
+[Publisher Susbcriber](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/messagingsystem)  
 [Object Pool](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/objectpool)                                                             
 [Chess](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/chess3/README.md)                                                                         
 [Multi Level Cache](https://github.com/shubham-v/object-oriented-design/tree/master/src/main/java/multilevelcache)                                                   
