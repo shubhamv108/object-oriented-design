@@ -64,5 +64,5 @@ MessagePollerStrategyType
 + poll(timeoutInMilliSeconds: long): MessageRecord
 + acknowledge(offset: int): boolean
 
-DefaultMessagePoller(MessagePoller)
+DefaultMessagePoller(MessagePoller)</br>
 MessagePollerAutoAcknowledgeFacade(MessagePoller)
