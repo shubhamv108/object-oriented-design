@@ -22,6 +22,9 @@ public class SplitWiseManager {
     public void addExpense(Expense expense) {
         balances.put(expense.getPayer(), balances.getOrDefault(expense.getPayer(), 0.0d) + expense.getAmount());
 
+        if (expense.getType() == ExpenseType.INDIVIDUAL)
+            //
+
         if (expense.getType() == ExpenseType.GROUP) {
             // update balance for each participant
         }

@@ -13,12 +13,12 @@ User
 + getType(): ExpenseType
 
 IndividualExpense(Expense)
-- payer
-- amount
+- payer: User
+- amount: double
 
 GroupExpense(Expense)
-- payer
-- amount
+- payer: User
+- amount: double
 - participants: List<User>
 
 ExpenseFactory
