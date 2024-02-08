@@ -5,6 +5,9 @@ CoffeeVendingMachineState
 + DispensingCoffee
 + Aborted
 
+Coin
+number: int
+
 <<State>>
 + insertCoin(coins: List<Coin>): void
 + selectCoffeeBeverage(beverageNumber int): void
