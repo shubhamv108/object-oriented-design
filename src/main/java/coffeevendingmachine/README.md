@@ -31,5 +31,6 @@ CoffeeVendingMachine(State)
 - currentState: State
 - states: Map<CoffeeVendingMachineState, State>
 - inventory: Map<Integer, AbstractCoffeeBeverage>
+- selectedBeverage: AbstractCoffeeBeverage
 + CoffeeVendingMachine()
 + changeStateTo(state: CoffeeVendingMachineState): void
