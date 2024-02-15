@@ -180,7 +180,7 @@ public class AppointmentBooking {
                         .map(Map::entrySet)
                         .map(entries -> {
                             int count = 0;
-                            for (Map.Entry<Instant, int[]> instant : entries) {
+                            for (final Map.Entry<Instant, int[]> instant : entries) {
                                 if ((instant.getKey().isAfter(start) || instant.getKey().equals(start))
                                     && (instant.getValue()[0] > 0 || instant.getValue()[1] > 0))
                                     return true;
