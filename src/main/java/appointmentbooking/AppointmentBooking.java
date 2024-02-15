@@ -160,7 +160,7 @@ public class AppointmentBooking {
         }
         
         public static class DefaultCalenderBlockingStrategy implements CalenderBlockingStrategy {
-            private final Map<String, TreeMap<Instant, int[]>> entityBlockedTimings = new HashMap<>();
+            private final Map<String, TreeMap<Instant, int[]>> entityBlockedTimings = new ConcurrentHashMap<>();
 
             public static DefaultCalenderBlockingStrategy getInstance() {
                 return SingletonHolder.INSTANCE;
