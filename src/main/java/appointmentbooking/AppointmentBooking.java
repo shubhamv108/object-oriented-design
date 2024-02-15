@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AppointmentBooking {
 
@@ -104,10 +105,16 @@ public class AppointmentBooking {
             if (end == null || end.isBefore(Instant.now()) || end.isBefore(start))
                 throw new IllegalArgumentException("Invalid end: " + end);
 
-            if (this.calenderBlockingStrategy.isNotAvailable(bookedEntityId, start, end))
-                throw new IllegalArgumentException(String.format("%s already calender blocked for timings", bookedEntityId));
-            
-            synchronized (bookedEntityId) {
+            try {
+                LockService.getInstance().getLock(bookedEntityId).readLock().lock();
+                if (this.calenderBlockingStrategy.isNotAvailable(bookedEntityId, start, end))
+                    throw new IllegalArgumentException(String.format("%s already calender blocked for timings", bookedEntityId));
+            } finally {
+                LockService.getInstance().getLock(bookedEntityId).readLock().unlock();
+            }
+
+            try {
+                LockService.getInstance().getLock(bookedEntityId).writeLock().lock();
                 if (this.calenderBlockingStrategy.isNotAvailable(bookedEntityId, start, end))
                     throw new IllegalArgumentException(String.format("%s already calender blocked for timings", bookedEntityId));
 
@@ -121,6 +128,8 @@ public class AppointmentBooking {
                 this.calenderBlockingStrategy.block(booking.getBookedEntityId(), booking.getStart(), booking.getEnd());
                 this.bookings.put(booking.getId(), booking);
                 return booking;
+            } finally {
+                LockService.getInstance().getLock(bookedEntityId).writeLock().unlock();
             }
         }
 
@@ -134,10 +143,13 @@ public class AppointmentBooking {
                     .filter(bookin -> bookin.getStart().isAfter(Instant.now()))
                     .orElseThrow(() -> new IllegalArgumentException(String.format("No booking found for booking id: %s", bookingId)));
 
-            synchronized (booking.getBookedEntityId()) {
+            try {
+                LockService.getInstance().getLock(booking.getBookedEntityId()).writeLock().lock();
                 this.calenderBlockingStrategy.unBlock(booking.getBookedEntityId(), booking.getStart(), booking.getEnd());
                 booking.setStatus(BookingStatus.CANCELLED);
                 return booking;
+            } finally {
+                LockService.getInstance().getLock(booking.getBookedEntityId()).writeLock().unlock();
             }
         }
         
@@ -151,7 +163,7 @@ public class AppointmentBooking {
             private final Map<String, TreeMap<Instant, int[]>> entityBlockedTimings = new HashMap<>();
 
             public static DefaultCalenderBlockingStrategy getInstance() {
-                return DefaultCalenderBlockingStrategy.SingletonHolder.INSTANCE;
+                return SingletonHolder.INSTANCE;
             }
 
             private static final class SingletonHolder {
@@ -200,6 +212,32 @@ public class AppointmentBooking {
                 timings.computeIfAbsent(start, e -> new int[2])[0]--;
                 timings.computeIfAbsent(end, e -> new int[2])[1]--;
             }
+        }
+    }
+
+    public static class LockService {
+
+        private final Map<String, ReentrantReadWriteLock> locks = new ConcurrentHashMap<>();
+
+        public static LockService getInstance() {
+            return SingletonHolder.INSTANCE;
+        }
+
+        private static final class SingletonHolder {
+            private static final LockService INSTANCE = new LockService();
+        }
+
+        public ReentrantReadWriteLock getLock(final String name)  {
+            ReentrantReadWriteLock lock = this.locks.get(name);
+            if (lock == null) {
+                synchronized (name) {
+                    lock = this.locks.get(name);
+                    if (lock == null) {
+                        this.locks.put(name, lock = new ReentrantReadWriteLock());
+                    }
+                }
+            }
+            return lock;
         }
     }
 
