@@ -13,7 +13,7 @@ CabType
 
 User
 - bookedCabIds
-+ findCabs(source: String, destination: String, cabTypes: List): List
++ findCabs(source: String, destination: String, cabTypes: List<CabType>): List
 + confirm(cabId: String): void
 + cancel(cabId: String): void
 + endTrip(cabId: String): void
@@ -52,10 +52,10 @@ CabManager
 <<CabBookingStrategy>>
 + findCabs(source: String, destination: String, cabTypes: List<CabTypes>): Set<Entry<String, Cab>>
 + book(cabId: String): void
-+ markAvailable(String cabId): void
-+ cancel(String cabId): void
-+ end(String cabId, int driverRating): void
-+ isBooked(String cabId): boolean
++ markAvailable(cabId: String): void
++ cancel(cabId: String): void
++ end(cabId: String, driverRating: int): void
++ isBooked(cabId: String): boolean
 
 
 DefaultCabBookingStrategy(CabBookingStrategy)
