@@ -107,16 +107,14 @@ public class AppointmentBooking {
 
             try {
                 LockService.getInstance().getLock(bookedEntityId).readLock().lock();
-                if (this.calenderBlockingStrategy.isNotAvailable(bookedEntityId, start, end))
-                    throw new IllegalArgumentException(String.format("%s already calender blocked for timings", bookedEntityId));
+                this.validateAvailabilityOrThrowException(bookedEntityId, start, end);
             } finally {
                 LockService.getInstance().getLock(bookedEntityId).readLock().unlock();
             }
 
             try {
                 LockService.getInstance().getLock(bookedEntityId).writeLock().lock();
-                if (this.calenderBlockingStrategy.isNotAvailable(bookedEntityId, start, end))
-                    throw new IllegalArgumentException(String.format("%s already calender blocked for timings", bookedEntityId));
+                this.validateAvailabilityOrThrowException(bookedEntityId, start, end);
 
                 final Booking booking = new Booking(
                         UUID.randomUUID().toString(),
@@ -131,6 +129,14 @@ public class AppointmentBooking {
             } finally {
                 LockService.getInstance().getLock(bookedEntityId).writeLock().unlock();
             }
+        }
+
+        private void validateAvailabilityOrThrowException(
+                final String entityId,
+                final Instant start,
+                final Instant end) {
+            if (this.calenderBlockingStrategy.isNotAvailable(entityId, start, end))
+                throw new IllegalArgumentException(String.format("%s already calender blocked for timings", entityId));
         }
 
         public Booking cancelBooking(
@@ -175,8 +181,11 @@ public class AppointmentBooking {
                     final String entityId,
                     final Instant start,
                     final Instant end) {
+                final Instant from = Optional.ofNullable(entityBlockedTimings.get(entityId))
+                        .map(timings -> timings.keySet().stream().findFirst().orElse(start))
+                        .orElse(Instant.now());
                 return Optional.ofNullable(entityBlockedTimings.get(entityId))
-                        .map(timings -> timings.subMap(Instant.now(), end))
+                        .map(timings -> timings.subMap(from, end))
                         .map(Map::entrySet)
                         .map(entries -> {
                             int count = 0;
