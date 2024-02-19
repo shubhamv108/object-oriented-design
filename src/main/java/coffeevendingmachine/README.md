@@ -6,9 +6,12 @@ CoffeeVendingMachineState
 + Aborted
 
 Coin
-number: int
++ ONE
++ TWO
++ FIVE
++ TEN
 
-<<State>>
+<<StateOperations>>
 + insertCoin(coins: List<Coin>): void
 + selectCoffeeBeverage(beverageNumber int): void
 + addIngredient(ingredientNumber: int): void
@@ -16,24 +19,27 @@ number: int
 + dispenseCash(): int
 + abort(): void
 
-AbstractState(State)
+AbstractVendingMachineState(StateOperations)
 - coffeeVendingMachine: CoffeeVendingMachine
 
-IdleState(AbstractState)
-InsertedMoneyState(AbstractState)
-SelectedCoffeeState(AbstractState)
-DispensingCoffeeState(AbstractState)
-AbortState(AbstractState)
+IdleState(AbstractVendingMachineState)
+InsertedMoneyState(AbstractVendingMachineState)
+SelectedCoffeeState(AbstractVendingMachineState)
+DispensingCoffeeState(AbstractVendingMachineState)
+AbortState(AbstractVendingMachineState)
 
-AbstractCoffeeBeverage
-- name: String
-+ AbstractCoffeeBeverage(beverage: AbstractCoffeeBeverage)
+<<CoffeeBeverage>>
++ getName(): String
+
+CoffeeBeverageDecorator(CoffeeBeverage)
+- beverage: CoffeeBeverage
++ CoffeeBeverageDecorator(beverage: CoffeeBeverage)
 + getName(): String
 
 CoffeeVendingMachine(State)
 - currentState: State
 - states: Map<CoffeeVendingMachineState, State>
-- inventory: Map<Integer, AbstractCoffeeBeverage>
-- selectedBeverage: AbstractCoffeeBeverage
+- inventory: Map<Integer, CoffeeBeverage>
+- selectedBeverage: CoffeeBeverage
 + CoffeeVendingMachine()
 + changeStateTo(state: CoffeeVendingMachineState): void

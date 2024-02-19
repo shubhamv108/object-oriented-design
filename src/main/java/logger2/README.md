@@ -5,36 +5,23 @@ LogLevel
 + DEBUG
 
 AbstractLoggerHandler
+- logLevel: LogLevel
 - next: AbstractLoggerHandler
++ AbstractLoggerHandler(logLevel: LogLevel)
 + next(): AbstractLoggerHandler
 + setNext(AbstractLogger): void
 + log(level: LogLevel, message: String): void
 
+ConsoleLogger(AbstractLoggerHandler)
+FileLogger(AbstractLoggerHandler)
+CloudLogger(AbstractLoggerHandler)
+TopicLogger(AbstractLoggerHandler)
+MetricsLogger(AbstractLoggerHandler)
 
-AbstractLevelLoggerHandler(AbstractLoggerHandler)
-InfoLevelLogger(AbstractLevelLoggerHandler)
-WarnLevelLogger(AbstractLevelLoggerHandler)
-ErrorLevelLogger(AbstractLevelLoggerHandler)
-DEBUGLevelLogger(AbstractLevelLoggerHandler)
-
-
-AbstractLayerLoggerHandler(AbstractLoggerHandler)
-ConsoleLogger(AbstractLayerLoggerHandler)
-FileLogger(AbstractLayerLoggerHandler)
-CloudLogger(AbstractLayerLoggerHandler)
-TopicLogger(AbstractLayerLoggerHandler)
-MetricsLogger(AbstractLayerLoggerHandler)
-
-
-LevelLoggerHandlerChainDirectorBuilder
-+ buildAndGet(AbstractLayerLoggerHandler): AbstractLevelLoggerHandler
-
-
-LayerLoggerHandlerChainDirectorBuilder
-+ buildAndGet(): AbstractLayerLoggerHandler
-
+LoggerHandlerChainDirectorBuilder
++ buildAndGet(): AbstractLoggerHandler
 
 LoggerClient
-- loggerHandler: AbstractLevelLoggerHandler
+- loggerHandler: AbstractLoggerHandler
 + log(level: LogLevel, message: String): void
 

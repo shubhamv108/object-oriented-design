@@ -6,8 +6,8 @@ IProductService
 NormalProductService(IProductService)
 
 AbstractPremiumDecorator(IProductService)
-- WrappedService: IProductService
-+ AbstractPremiumDecorator(IProductService)
+- wrappedService: IProductService
++ AbstractPremiumDecorator(productService: IProductService)
 
 PlatinumPremiumDecorator(AbstractPremiumDecorator)
 GoldPremiumDecorator(AbstractPremiumDecorator)
