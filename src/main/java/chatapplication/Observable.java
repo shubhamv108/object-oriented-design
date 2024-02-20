@@ -15,7 +15,8 @@ public abstract class Observable<Observer extends IObserver, Notification> {
     }
 
     public void notifyObservers(final Notification notification) {
-        this.observers.stream()
+        this.observers
+                .stream()
                 .filter(observer -> this.filter(observer, notification))
                 .forEach(observer -> observer.notifyObserver(notification));
     }
