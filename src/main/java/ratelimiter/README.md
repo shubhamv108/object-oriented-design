@@ -1,3 +1,6 @@
+Rate limiter throttles the request
+Allows x request/min
+
 <<RateLimiter>>
 + allow(): boolean
 
