@@ -213,7 +213,7 @@ class BookingManager {
     }
 }
 
-public class BookingManagementSystem {
+public class HotelBookingManagementSystem {
 
     public static void main(String[] args) {
         final String hotelId = HotelManager.getManager().add("City1", new Hotel());
