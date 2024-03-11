@@ -1,5 +1,5 @@
 ## Problem
-    Design Messaging system for event driven architecture.
+    Design kafka like system.
 
 MessageRecord
 - id: String
