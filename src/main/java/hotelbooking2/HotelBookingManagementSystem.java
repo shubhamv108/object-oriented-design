@@ -6,12 +6,14 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -31,10 +33,12 @@ enum RoomAvailabilityStrategyType {
     ANY_ROOM_ANY_DAY,
 }
 
+enum BookingStatus {
+    CREATED, CONFIRMED, CANCELLED
+}
+
 class Hotel {
     private String hotelId;
-
-    private Map<RoomType, Map<Date, Integer>> bookedCount = new HashMap<>();
     private Map<RoomType, List<Room>> rooms = new HashMap<>();
 
     public Boolean hasRoomType(RoomType roomType) {
@@ -113,15 +117,20 @@ class Booking {
     private String roomId;
     private RoomType roomType;
     private String hotelId;
-    private Instant startDate;
-    private Instant endDate;
+    private final TreeSet<LocalDate> dates = new TreeSet<>();
 
-    public Booking(String id, String roomId, RoomType roomType, Instant startDate, Instant endDate) {
+    private Instant expiryAt;
+
+    private BookingStatus status;
+
+    public Booking(String id, String hotelId, String roomId, RoomType roomType, Set<LocalDate> dates) {
         this.id = id;
+        this.hotelId = hotelId;
         this.roomId = roomId;
         this.roomType = roomType;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.dates.addAll(dates);
+        this.status = BookingStatus.CREATED;
+        this.expiryAt = Instant.now().plus(10, ChronoUnit.MINUTES);
     }
 
     public String getId() {
@@ -129,11 +138,22 @@ class Booking {
     }
 
     public Instant getStartDate() {
-        return startDate;
+        return dates
+                .stream()
+                .findFirst()
+                .map(date -> date.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                .orElseThrow(() -> new IllegalStateException("no start date for booking"));
     }
 
     public Instant getEndDate() {
-        return endDate;
+        return dates
+                .stream()
+                .skip(dates.size() - 1)
+                .findFirst()
+                .map(date -> date.atTime(23, 59, 59)
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant())
+                .orElseThrow(() -> new IllegalStateException("no start date for booking"));
     }
 
     public String getHotelId() {
@@ -148,17 +168,33 @@ class Booking {
         return roomType;
     }
 
+    public BookingStatus getStatus() {
+        return status;
+    }
+
     public List<LocalDate> getDates() {
-        return DateListGenerator.generateDateList(startDate, endDate);
+        return this.dates.stream().toList();
+    }
+
+    public boolean isExpired() {
+        return (BookingStatus.CANCELLED.equals(status)) ||
+                (BookingStatus.CREATED.equals(status) && Instant.now().isAfter(this.expiryAt));
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "Booking{" +
                 "id='" + id + '\'' +
-                ", roomIds=" + roomId +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
+                ", roomId='" + roomId + '\'' +
+                ", roomType=" + roomType +
+                ", hotelId='" + hotelId + '\'' +
+                ", dates=" + dates +
+                ", expiryAt=" + expiryAt +
+                ", status=" + status +
                 '}';
     }
 }
@@ -336,8 +372,6 @@ class RoomTypeInventory {
     }
 }
 
-
-
 class BookingManager {
     private final Map<String, Booking> bookings = new ConcurrentHashMap<>();
 
@@ -365,8 +399,10 @@ class BookingManager {
                 throw new IllegalStateException("No " + roomType + " room available in hotel: " + hotelId);
 
             return roomAvailabilityStrategy
-                    .getAvailableRoomIds(hotelId, roomType, start, end, roomCount)
-                    .map(roomId -> new Booking(UUID.randomUUID().toString(), roomId, roomType, start, end))
+                    .getAvailableRoomIdsWithDates(hotelId, roomType, dates, roomCount)
+                    .entrySet()
+                    .stream()
+                    .map(entry -> new Booking(UUID.randomUUID().toString(), hotelId, entry.getKey(), roomType, entry.getValue()))
                     .peek(booking -> {
                         this.bookings.put(booking.getId(), booking);
                         roomAvailabilityStrategy.addRoomBooking(booking);
@@ -374,8 +410,30 @@ class BookingManager {
         }
     }
 
+    public Booking getById(String id) {
+        return this.bookings.get(id);
+    }
+
     public static BookingManager getManager() {
         return SingletonHolder.INSTANCE;
+    }
+
+
+    public void confirm(String bookingId) {
+        Optional.ofNullable(this.bookings.get(bookingId))
+                .ifPresent(booking -> BookingStateFactory
+                        .getFactory()
+                        .getState(booking.getStatus())
+                        .confirm(booking));
+    }
+
+
+    public void cancel(String bookingId) {
+        Optional.ofNullable(this.bookings.get(bookingId))
+                .ifPresent(booking -> BookingStateFactory
+                        .getFactory()
+                        .getState(booking.getStatus())
+                        .cancel(booking));
     }
 
     private static final class SingletonHolder {
@@ -385,35 +443,29 @@ class BookingManager {
 
 abstract class AbstractRoomAvailabilityStrategy {
 
-    private final Map<String, List<Booking>> roomIdToBookings = new ConcurrentHashMap<>();
+    private final Map<String, Map<LocalDate, Set<String>>> roomIdToBookingIds = new ConcurrentHashMap<>();
     protected final Map<String, RoomTypeInventory> hotelRoomTypeInventory = new HashMap<>();
 
-    public boolean isRoomAvailable(String roomId, Instant start, Instant end) {
-        return !Optional
-                .ofNullable(this.roomIdToBookings.get(roomId))
-                .map(bookings -> bookings
-                        .stream()
-                        .anyMatch(booking ->
-                                          (start.isAfter(booking.getStartDate()) && start.isBefore(booking.getEndDate())) ||
-                                          (end.isAfter(booking.getStartDate()) && end.isBefore(booking.getEndDate())))
-                    ).orElse(false);
-    }
-
-    public Stream<String> getAvailableRoomIds(
-            String hotelId,
-            RoomType roomType,
-            Instant start,
-            Instant end,
-            int roomCount) {
-        return HotelManager.getManager().getInServiceRoomIdsByRoomType(hotelId, roomType)
-                .filter(roomId -> this.isRoomAvailable(roomId, start, end))
-                .limit(roomCount);
+    public boolean isRoomAvailable(String roomId, List<LocalDate> dates) {
+        return dates
+                .stream()
+                .allMatch(date -> Optional
+                        .ofNullable(this.roomIdToBookingIds.get(roomId))
+                        .map(dateBookings -> dateBookings.get(date))
+                        .map(bookingIds -> bookingIds
+                                .stream()
+                                .map(BookingManager.getManager()::getById)
+                                .allMatch(Booking::isExpired)
+                         ).orElse(true));
     }
 
 
     public void addRoomBooking(Booking booking) {
-        this.roomIdToBookings.computeIfAbsent(booking.getRoomId(), k -> new ArrayList<>())
-                .add(booking);
+        booking.getDates()
+                .forEach(date -> this.roomIdToBookingIds
+                        .computeIfAbsent(booking.getRoomId(), k -> new HashMap<>())
+                        .computeIfAbsent(date, k -> new HashSet<>())
+                        .add(booking.getId()));
         booking
                 .getDates()
                 .forEach(date -> this.hotelRoomTypeInventory
@@ -421,18 +473,47 @@ abstract class AbstractRoomAvailabilityStrategy {
                         .addBooked(booking.getRoomType(), date));
     }
 
+    public Stream<String> getAvailableRoomIds(
+            String hotelId,
+            RoomType roomType,
+            List<LocalDate> dates,
+            int roomCount) {
+        return HotelManager.getManager().getInServiceRoomIdsByRoomType(hotelId, roomType)
+                .filter(roomId -> this.isRoomAvailable(roomId, dates))
+                .limit(roomCount);
+    }
+
+    public abstract Map<String, Set<LocalDate>> getAvailableRoomIdsWithDates(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount);
+
     public abstract Boolean isRoomTypeAvailable(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount);
 
     public abstract boolean doubleCheckRoomAvailability();
 }
  class AnyRoomAnyDaysRoomAvailabilityStrategy extends AbstractRoomAvailabilityStrategy {
 
-
-    public Boolean isRoomTypeAvailable(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount) {
+     public Boolean isRoomTypeAvailable(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount) {
         return Optional.ofNullable(this.hotelRoomTypeInventory.get(hotelId))
                 .map(roomTypeInventory -> roomTypeInventory.isRoomTypeAvailable(roomType, dates, roomCount))
                 .orElse(true);
     }
+
+    @Override
+    public Map<String, Set<LocalDate>> getAvailableRoomIdsWithDates(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount) {
+         final Map<String, Set<LocalDate>> roomDates = new HashMap<>();
+         dates.forEach(date -> {
+                  final String availableRoomId = HotelManager
+                          .getManager()
+                          .getInServiceRoomIdsByRoomType(hotelId, roomType)
+                          .filter(roomId -> super.isRoomAvailable(roomId, List.of(date)))
+                          .findFirst()
+                          .orElseThrow(() -> new IllegalStateException("no " + roomType + " available for date: " + date + " int hotel: " + hotelId));
+                  roomDates.computeIfAbsent(availableRoomId, k -> new HashSet<>())
+                          .add(date);
+              }
+         );
+
+         return roomDates;
+     }
 
      @Override
      public boolean doubleCheckRoomAvailability() {
@@ -442,18 +523,21 @@ abstract class AbstractRoomAvailabilityStrategy {
 
 class SameRoomAllDayRoomAvailabilityStrategy extends AbstractRoomAvailabilityStrategy {
     public Boolean isRoomTypeAvailable(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount) {
-        Collections.sort(dates);
         return HotelManager.getManager().getInServiceRoomIdsByRoomType(hotelId, roomType)
-                .anyMatch(roomId ->
-                             this.isRoomAvailable(
-                                roomId,
-                                dates.get(0).atStartOfDay(ZoneId.systemDefault()).toInstant() ,
-                                dates.get(dates.size() - 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                .anyMatch(roomId -> this.isRoomAvailable(roomId, dates));
     }
 
     @Override
     public boolean doubleCheckRoomAvailability() {
         return false;
+    }
+
+    @Override
+    public Map<String, Set<LocalDate>> getAvailableRoomIdsWithDates(String hotelId, RoomType roomType, List<LocalDate> dates, int roomCount) {
+        final Map<String, Set<LocalDate>> roomDates = new HashMap<>();
+        super.getAvailableRoomIds(hotelId, roomType, dates, roomCount)
+                .forEach(roomId -> roomDates.put(roomId, new LinkedHashSet<>(dates)));
+        return roomDates;
     }
 }
 
@@ -492,12 +576,66 @@ class RoomAvailabilityStrategyFactory {
     private static final class SingletonHolder {
         private static final RoomAvailabilityStrategyFactory INSTANCE = new RoomAvailabilityStrategyFactory();
     }
-
 }
+
+interface IBookingState {
+    void confirm(Booking booking);
+    void cancel(Booking booking);
+}
+
+class CreatedBookingState implements IBookingState {
+
+    @Override
+    public void confirm(Booking booking) {
+        if (booking.isExpired())
+            throw new IllegalStateException("booking already expired");
+        booking.setStatus(BookingStatus.CONFIRMED);
+    }
+
+    @Override
+    public void cancel(Booking booking) {
+        booking.setStatus(BookingStatus.CANCELLED);
+    }
+}
+
+class ConfirmedBookingState implements IBookingState {
+
+    @Override
+    public void confirm(Booking booking) {
+        throw new UnsupportedOperationException("booking already confirmed");
+    }
+
+    @Override
+    public void cancel(Booking booking) {
+        booking.setStatus(BookingStatus.CANCELLED);
+    }
+}
+
+class BookingStateFactory {
+    private final Map<BookingStatus, IBookingState> bookingStatus = new HashMap<>();
+
+    private BookingStateFactory() {
+        this.bookingStatus.put(BookingStatus.CREATED, new CreatedBookingState());
+        this.bookingStatus.put(BookingStatus.CONFIRMED, new ConfirmedBookingState());
+    }
+
+    public IBookingState getState(BookingStatus status) {
+        return this.bookingStatus.get(status);
+    }
+
+    public static BookingStateFactory getFactory() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    private static final class SingletonHolder {
+        private static final BookingStateFactory INSTANCE = new BookingStateFactory();
+    }
+}
+
 
 public class HotelBookingManagementSystem {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         final String hotelId = HotelManager.getManager().add("City1", new Hotel());
         HotelManager.getManager().addRoom(hotelId, RoomType.K);
         final Filter filter = new Filter();
@@ -512,9 +650,15 @@ public class HotelBookingManagementSystem {
         filter.setEndDate(Instant.now().plus(1, ChronoUnit.DAYS));
         System.out.println(SearchService.getService().search(filter));
 
+        final var booking1 = BookingManager.getManager().createBooking(hotelId, RoomType.K, Instant.now(), Instant.now().plus(1, ChronoUnit.DAYS), RoomAvailabilityStrategyType.SAME_ROOM_ALL_DAYS, 1);
+        System.out.println(booking1);
+        BookingManager.getManager().cancel(booking1.get(0).getId());
+
+        System.out.println(BookingManager.getManager().getById(booking1.get(0).getId()));
         System.out.println(BookingManager.getManager().createBooking(hotelId, RoomType.K, Instant.now(), Instant.now().plus(1, ChronoUnit.DAYS), RoomAvailabilityStrategyType.SAME_ROOM_ALL_DAYS, 1));
-//        System.out.println(BookingManager.getManager().createBooking(hotelId, RoomType.K, Instant.now(), Instant.now().plus(1, ChronoUnit.DAYS), RoomAvailabilityStrategyType.SAME_ROOM_ALL_DAYS));
-//
+
+        Thread.sleep(700000);
+        System.out.println(BookingManager.getManager().createBooking(hotelId, RoomType.K, Instant.now(), Instant.now().plus(1, ChronoUnit.DAYS), RoomAvailabilityStrategyType.SAME_ROOM_ALL_DAYS, 1));
         System.out.println(BookingManager.getManager().createBooking(hotelId, RoomType.K, Instant.now().plus(2, ChronoUnit.DAYS), Instant.now().plus(3, ChronoUnit.DAYS), RoomAvailabilityStrategyType.ANY_ROOM_ANY_DAY, 1));
     }
 
