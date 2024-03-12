@@ -1,11 +1,14 @@
 package hotelbooking2;
 
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -57,10 +60,6 @@ class Hotel {
                 .stream()
                 .filter(Room::isInService)
                 .map(Room::getId);
-    }
-
-    private List<Room> getRoomByTypes(RoomType roomType) {
-        return rooms.get(roomType);
     }
 
     public void addRoom(RoomType type) {
@@ -420,6 +419,9 @@ class BookingManager {
 
 
     public void confirm(String bookingId) {
+        ArrayList<String> a = new ArrayList<>();
+        String.join(" ", a);
+        Arrays.stream(new int[] {}).forEach(a::remove);
         Optional.ofNullable(this.bookings.get(bookingId))
                 .ifPresent(booking -> BookingStateFactory
                         .getFactory()
@@ -638,6 +640,7 @@ public class HotelBookingManagementSystem {
     public static void main(String[] args) throws InterruptedException {
         final String hotelId = HotelManager.getManager().add("City1", new Hotel());
         HotelManager.getManager().addRoom(hotelId, RoomType.K);
+
         final Filter filter = new Filter();
         filter.setCityId("City1");
         System.out.println(SearchService.getService().search(filter));

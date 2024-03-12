@@ -1094,7 +1094,7 @@ class Driver {
         final Booking bookingB = bookingService.book(
                 new Booking(
                         null,
-                        Set.of(String.valueOf(movieShowSeatDTOs.get(0).getSeatId()), String.valueOf(movieShowSeatDTOs.get(1).getSeatId())),
+                        Set.of(String.valueOf(movieShowSeatDTOs.get(0).getSeatId()),    String.valueOf(movieShowSeatDTOs.get(1).getSeatId())),
                         movieShows.get(0).getId(),
                         "owner"
                 )
