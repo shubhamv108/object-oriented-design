@@ -10,7 +10,7 @@ public class LeakyBucket {
 
     public LeakyBucket(final double ratePerNanoSeconds, final double burst) {
         this.ratePerNanoSeconds = ratePerNanoSeconds;
-        this.burst = burst;
+        this.burst = burst; // smooths out data flow, releasing packets at a steady rate, constant rate
     }
 
     public synchronized boolean allowRequest(final double water) {

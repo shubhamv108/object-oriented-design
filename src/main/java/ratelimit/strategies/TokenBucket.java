@@ -4,16 +4,16 @@ import ratelimit.IRateLimiter;
 
 public class TokenBucket implements IRateLimiter {
 
-    private final long maxBucketSize;
+    private final long maxBurstTokens; // maxBucketSize
     private final long refillRate;
 
     private double currentBucketSize;
     private long lastRefillTimestamp;
 
-    public TokenBucket(final long maxBucketSize, final long refillRate) {
-        this.maxBucketSize = maxBucketSize;
-        this.refillRate = refillRate;
-        this.currentBucketSize = maxBucketSize;
+    public TokenBucket(final long maxBurstTokens, final long refillRateInSeconds) {
+        this.maxBurstTokens = maxBurstTokens;
+        this.refillRate = refillRateInSeconds;
+        this.currentBucketSize = maxBurstTokens;
         this.lastRefillTimestamp = System.nanoTime();
     }
     public synchronized boolean allow() {
@@ -32,7 +32,7 @@ public class TokenBucket implements IRateLimiter {
     private void refill() {
         long now = System.nanoTime();
         double tokensToAdd = (now - this.lastRefillTimestamp) * this.refillRate / 1e9;
-        this.currentBucketSize = Math.min(this.currentBucketSize + tokensToAdd, this.maxBucketSize);
+        this.currentBucketSize = Math.min(this.currentBucketSize + tokensToAdd, this.maxBurstTokens);
         this.lastRefillTimestamp = now;
     }
 
