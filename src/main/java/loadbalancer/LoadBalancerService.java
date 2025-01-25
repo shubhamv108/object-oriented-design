@@ -2,17 +2,15 @@ package loadbalancer;
 
 import loadbalancer.exceptions.NoSuchBackendExists;
 import loadbalancer.models.Backend;
+import loadbalancer.models.Request;
 import loadbalancer.models.Server;
-import loadbalancer.strategies.ILoadBalanceStrategy;
-import loadbalancer.strategies.LoadBalanceStrategy;
-import loadbalancer.strategies.LoadBalanceStrategyFactory;
+import loadbalancer.enums.LoadBalanceStrategy;
+import loadbalancer.factories.LoadBalanceStrategyFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class LoadBalancerService {
 
@@ -20,19 +18,21 @@ public class LoadBalancerService {
     private final LoadBalanceStrategyFactory loadBalanceStrategyFactory;
 
     private int defaultMaxServers = 10;
-    private LoadBalanceStrategy defaultLoadBalanceStrategy;
+    private final LoadBalanceStrategy defaultLoadBalanceStrategy;
 
-    public LoadBalancerService(int defaultMaxServers,
-                               LoadBalanceStrategy defaultLoadBalanceStrategy,
-                               LoadBalanceStrategyFactory loadBalanceStrategyFactory) {
+    public LoadBalancerService(
+            int defaultMaxServers,
+            LoadBalanceStrategy defaultLoadBalanceStrategy,
+            LoadBalanceStrategyFactory loadBalanceStrategyFactory) {
         this.defaultMaxServers = defaultMaxServers;
         this.defaultLoadBalanceStrategy = defaultLoadBalanceStrategy;
         this.loadBalanceStrategyFactory = loadBalanceStrategyFactory;
     }
 
-    private Backend createOrGetBackend(String backendName,
-                                       int maxServers,
-                                       LoadBalanceStrategy loadBalanceStrategy) {
+    private Backend createOrGetBackend(
+            final String backendName,
+            final int maxServers,
+            final LoadBalanceStrategy loadBalanceStrategy) {
         Backend existingBackend = this.backends.get(backendName);
         if (existingBackend != null)
             return existingBackend;
@@ -42,42 +42,44 @@ public class LoadBalancerService {
             if (existingBackend != null)
                 return existingBackend;
 
-            ILoadBalanceStrategy loadBalanceStrategyInstance =
-                    this.loadBalanceStrategyFactory.get(loadBalanceStrategy);
-            Backend newBackend = new Backend(backendName, maxServers, loadBalanceStrategyInstance);
+            final Backend newBackend = new Backend(backendName, maxServers, loadBalanceStrategy, new HealthMonitor());
             this.backends.put(backendName, newBackend);
             return newBackend;
         }
     }
 
-    public Collection<Boolean> register(String backendName,
-                                       int maxServers,
-                                       LoadBalanceStrategy loadBalanceStrategy,
-                                       Collection<Server> servers) {
-        Backend backend = this.createOrGetBackend(backendName, maxServers, loadBalanceStrategy);
+    public Collection<Boolean> register(
+            final String backendName,
+            final int maxServers,
+            final LoadBalanceStrategy loadBalanceStrategy,
+            final Collection<Server> servers) {
+        final Backend backend = this.createOrGetBackend(backendName, maxServers, loadBalanceStrategy);
         if (servers == null)
             return new ArrayList<>();
-        return servers.stream().
-                map(backend::register).
-                collect(Collectors.toList());
+
+        return servers
+                .stream()
+                .map(backend::addServer)
+                .toList();
     }
 
-    public Collection<Boolean> register(String backendName, Collection<Server> servers) {
+    public Collection<Boolean> register(
+            final String backendName,
+            final Collection<Server> servers) {
         return this.register(backendName, this.defaultMaxServers, this.defaultLoadBalanceStrategy, servers);
     }
 
-    public boolean register(String backendName, Server server) {
-        Backend backend = this.createOrGetBackend(
+    public boolean register(final String backendName, final Server server) {
+        final Backend backend = this.createOrGetBackend(
                 backendName, this.defaultMaxServers, this.defaultLoadBalanceStrategy);
-        return backend.register(server);
+        return backend.addServer(server);
     }
 
-    public Server serve(String backendName, Optional<String> key) {
-        Backend backend = this.backends.get(backendName);
+    public Server serve(final String backendName, final Request request) {
+        final Backend backend = this.backends.get(backendName);
         if (backend == null)
             throw new NoSuchBackendExists(backendName);
-
-        return backend.get(key);
+        return backend.getServer(request);
     }
 
 }

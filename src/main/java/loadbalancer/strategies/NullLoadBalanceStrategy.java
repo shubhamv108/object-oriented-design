@@ -1,14 +1,12 @@
 package loadbalancer.strategies;
 
+import loadbalancer.models.Request;
 import loadbalancer.models.Server;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-public class NullLoadBalanceStrategy implements ILoadBalanceStrategy {
+public final class NullLoadBalanceStrategy implements ILoadBalanceStrategy {
 
     @Override
-    public Server get(ArrayList<Server> servers, Optional<String> key) {
+    public Server getServer(Request input) {
         return null;
     }
 }
