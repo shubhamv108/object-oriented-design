@@ -32,9 +32,9 @@ public class LoadBalanceStrategyFactory {
         switch (loadBalanceStrategy) {
             case RANDOM: return new RandomServerLoadBalanceStrategy(backend);
             case HASH: return new HashLoadBalancerStrategy(backend);
-            case ROUND_ROBIN: return new RoundRobinLoadBalanceStrategy(backend);
             case LEAST_RESPONSE_TIME: return new LeastResponseTimeLoadBalanceStrategy(backend);
             case LEAST_CONNECTIONS: return new LeastConnectionLoadBalanceStrategy(backend);
+            case ROUND_ROBIN: return new RoundRobinLoadBalanceStrategy(backend);
             case WEIGHTED: return new WeightedRandomLoadBalancer(backend);
             case WEIGHTED_ROUND_ROBIN: return new WeightedRoundRobinLoadBalancer(backend);
             case DYNAMIC_WEIGHTED_ROUND_ROBIN: return new DynamicWeightedRoundRobinLoadBalancer(backend);
