@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -182,12 +183,14 @@ public class NotificationSystem {
     }
 
     abstract class Notification {
+        final String uuid;
         final NotificationType notificationType;
         final String subject;
         final String body;
         private AtomicInteger tries = new AtomicInteger();
 
         Notification(NotificationType notificationType, String subject, String body) {
+            this.uuid = UUID.randomUUID().toString();
             this.notificationType = notificationType;
             this.subject = subject;
             this.body = body;
@@ -274,12 +277,14 @@ public class NotificationSystem {
 
     class NotificationWorker {
         final NotificationQueue notificationQueue;
+        final NotificationLogManager notificationLogManager;
         final NotificationChannelAdapterFactory notificationChannelAdapterFactory = NotificationChannelAdapterFactory.getInstance();
 
         ExecutorService scheduler = Executors.newFixedThreadPool(1);
 
-        public NotificationWorker(NotificationQueue notificationQueue, NotificationType notificationType) throws InterruptedException {
+        public NotificationWorker(NotificationQueue notificationQueue, NotificationType notificationType, NotificationLogManager notificationLogManager) throws InterruptedException {
             this.notificationQueue = notificationQueue;
+            this.notificationLogManager = notificationLogManager;
             execute(notificationType);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (scheduler != null)
@@ -292,9 +297,12 @@ public class NotificationSystem {
             while (true) {
                 Notification notification = notificationQueue.poll(notificationType);
                 Optional.ofNullable(notificationChannelAdapterFactory.get(notification.notificationType))
+                        .map(adapter -> {
+                            notificationLogManager.log(notification, NotificationStatus.SENDING);
+                            return adapter;
+                        })
                         .ifPresentOrElse(
-                                adapter -> adapter.send(notification),
-                                () -> notificationQueue.offerToRetry(notification));
+                                adapter -> adapter.send(notification), () -> notificationQueue.offerToRetry(notification));
                 notification.incrementTries();
             }
         }
@@ -355,6 +363,38 @@ public class NotificationSystem {
         }
     }
 
+    enum NotificationStatus {
+        SENDING, SENT, QUEUED_FOR_RETRY
+    }
+
+    class NotificationLog {
+        Notification notification;
+        NotificationStatus status;
+
+        public void setNotification(Notification notification) {
+            this.notification = notification;
+        }
+
+        public void setStatus(NotificationStatus status) {
+            this.status = status;
+        }
+    }
+
+    class NotificationLogManager {
+        Map<String, NotificationLog> notifications = new ConcurrentHashMap<>();
+
+        public void log(Notification notification, NotificationStatus status) {
+            NotificationLog log = notifications.computeIfAbsent(notification.uuid, __ -> new NotificationLog());
+            log.setNotification(notification);
+            log.setStatus(status);
+        }
+
+        public void updateStatus(String notificationId, NotificationStatus status) {
+            Optional.ofNullable(notifications.get(notificationId))
+                    .ifPresent(notificationLog -> notificationLog.setStatus(status));
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
         NotificationSystem s = new NotificationSystem();
         AccountManager accountManager = s.new AccountManager();
@@ -364,6 +404,7 @@ public class NotificationSystem {
         notificationTemplateManager.put("A", "B", s.new NotificationTemplate("{subjectplaceholder}", "{body}", Map.of("from", "A@a.com")));
         NotificationQueue notificationQueue = s.new NotificationQueue();
         NotificationService notificationService = s.new NotificationService(accountManager, deviceManager, notificationTemplateManager, notificationQueue);
+        NotificationLogManager notificationLogManager = s.new NotificationLogManager();
         notificationService.sendNotification(s.new Request("A", "B", Optional.empty(), Optional.empty(), new HashMap<>() {
             {
                 put("subjectplaceholder", "testHeader");
@@ -373,35 +414,35 @@ public class NotificationSystem {
 
         new Thread(() -> {
             try {
-                s.new NotificationWorker(notificationQueue, NotificationType.SMS);
+                s.new NotificationWorker(notificationQueue, NotificationType.SMS, notificationLogManager);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
         new Thread(() -> {
             try {
-                s.new NotificationWorker(notificationQueue, NotificationType.EMAIL);
+                s.new NotificationWorker(notificationQueue, NotificationType.EMAIL, notificationLogManager);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
         new Thread(() -> {
             try {
-                s.new NotificationWorker(notificationQueue, NotificationType.FCM);
+                s.new NotificationWorker(notificationQueue, NotificationType.FCM, notificationLogManager);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
         new Thread(() -> {
             try {
-                s.new NotificationWorker(notificationQueue, NotificationType.APN);
+                s.new NotificationWorker(notificationQueue, NotificationType.APN, notificationLogManager);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
         new Thread(() -> {
             try {
-                s.new NotificationWorker(notificationQueue, NotificationType.DESKTOP);
+                s.new NotificationWorker(notificationQueue, NotificationType.DESKTOP, notificationLogManager);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
