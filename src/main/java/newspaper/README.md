@@ -1,4 +1,4 @@
-One LLD of Newspapers (Physical) delivery system.
+One LLD of Newspapers (Physical) delivery elevatorController.
 
 Subscription -> newspaper, timings, delivery person , address
 

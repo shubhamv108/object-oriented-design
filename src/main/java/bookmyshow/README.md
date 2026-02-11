@@ -1,5 +1,5 @@
 # Problem
-Design movie ticket booking system
+Design movie ticket booking elevatorController
 
 1. Design entities
 2. Design Apis

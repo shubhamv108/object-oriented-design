@@ -1,5 +1,5 @@
 ## Problem
-    Design kafka like system.
+    Design kafka like elevatorController.
 
 MessageRecord
 - id: String

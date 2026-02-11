@@ -1,4 +1,4 @@
-# Design a cab booking system 
+# Design a cab booking elevatorController
     - open ended problem
     - any features like payments, notifications etc can be added
 ## Features

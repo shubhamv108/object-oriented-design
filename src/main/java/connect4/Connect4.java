@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Build 2 player Connect 4 game. Players take turns dropping discs into a 7 col, 6 row board.The fist to assign 4 of their discs verticaly, horizontally or diagnopnally wins
+ * Build 2 player Connect 4 game. Players take turns dropping discs into a 7 col, 6 row board.The fist to assign 4 of their discs vertically, horizontally or diagonally wins
  *
  * 1. Primary Capability
  * 2. Error handling
- * 3. Scope Boundries
+ * 3. Scope Boundaries
  *
  * FRs
  * 1. 2 players take turn on 6 * 7 board
- * 2. Disc drop to lowest available row in chosen col.
+ * 2. Disc drop to the lowest available row in chosen col.
  * 3. The game ends when
- *  - A player gets 4 discs in a row (vert, horiz or diag). They win)
+ *  - A player gets 4 discs in a row (vert, horizon or dig). They win.
  *  - The board is full. it's a draw.
  * 4. Invalid Moves should be rejected
  *  - Dropping in full col.
