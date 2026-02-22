@@ -64,6 +64,7 @@ dependencies {
             'com.google.guava:guava:33.3.1-jre',
             'org.jctools:jctools-core:4.0.1',
             'org.openjdk.jmh:jmh-core:1.37',
+            'com.github.f4b6a3:uuid-creator:6.1.0',
     )
     compileOnly (
             'org.projectlombok:lombok:1.18.30'

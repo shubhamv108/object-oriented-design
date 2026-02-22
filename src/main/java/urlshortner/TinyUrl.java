@@ -1,11 +1,14 @@
 package urlshortner;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -52,7 +56,7 @@ public class TinyUrl {
     }
 
     public enum ShortUrlGenerationStrategy {
-        SNOWFLAKE_ID_BASED, COUNTER_BASED, RANDOM, HASH_BASE64, GENERATED, GENERATED_OR_RANDOM
+        SNOWFLAKE_ID_BASED, UUIDv7, COUNTER_BASED, RANDOM, HASH_BASE64, GENERATED, GENERATED_OR_RANDOM
     }
 
     public static final class ShortUrlGenerationStrategyFactory {
@@ -60,6 +64,7 @@ public class TinyUrl {
         private ShortUrlGenerationStrategyFactory() {
             strategies = new HashMap<>();
             strategies.put(ShortUrlGenerationStrategy.SNOWFLAKE_ID_BASED, new SnowflakeIDBasedShortUrlGenerationStrategy());
+            strategies.put(ShortUrlGenerationStrategy.UUIDv7, new UUIDv7ShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.COUNTER_BASED, new CounterBasedShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.RANDOM, new RandomShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.HASH_BASE64, new HashBase64ShortUrlGenerationStrategy());
@@ -221,14 +226,62 @@ public class TinyUrl {
         }
     }
 
+    public static class UUIDv7ShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
+
+        @Override
+        public String generate(String url) {
+            UUID uuid = UuidCreator.getTimeOrderedEpoch();
+            return Base62.encode(toBytes(uuid));
+        }
+
+        private byte[] toBytes(java.util.UUID uuid) {
+            ByteBuffer buffer = ByteBuffer.allocate(16);
+            buffer.putLong(uuid.getMostSignificantBits());
+            buffer.putLong(uuid.getLeastSignificantBits());
+            return buffer.array();
+        }
+
+        public static class Base62 {
+            private static final String CHARSET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            private static final long UNSIGNED_MASK = 0xFFFFFFFFFFFFFFFFL;
+
+            public static String encode(long value) {
+                if (value == 0) return "0";
+                StringBuilder sb = new StringBuilder();
+                long v = value;
+                while (v != 0) {
+                    int idx = Math.floorMod(v, 62);
+                    sb.append(CHARSET.charAt(idx));
+                    v = Long.divideUnsigned(v, 62);
+                }
+                return sb.reverse().toString();
+            }
+
+            private static String encode(byte[] bytes) {
+                StringBuilder sb = new StringBuilder();
+                // Convert byte array to a positive BigInteger
+                java.math.BigInteger value = new java.math.BigInteger(1, bytes); // 1 -> positive
+
+                // Base62 encode
+                while (value.signum() > 0) {
+                    java.math.BigInteger[] divmod = value.divideAndRemainder(java.math.BigInteger.valueOf(62));
+                    sb.append(CHARSET.charAt(divmod[1].intValue()));
+                    value = divmod[0];
+                }
+
+                return sb.reverse().toString();
+            }
+        }
+    }
+
     public static class CounterBasedShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
 
         private final Counter counter = new Counter();
 
         @Override
         public String generate(final String url) {
-//            return Base62.encode(counter.incrementAndGet());
-            return Base64.getEncoder().encodeToString(String.valueOf(counter.incrementAndGet()).getBytes());
+            return Base62.encode(counter.incrementAndGet());
         }
 
         public class Counter {
