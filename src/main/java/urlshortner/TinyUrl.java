@@ -29,25 +29,25 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TinyUrl {
 
     public class URLShortener {
-        private final Map<String, String> shortUrlsToLocation = new ConcurrentHashMap<>();
+        private final Map<String, String> shortUrlToLocation = new ConcurrentHashMap<>();
 
         public final String createShortUrl(final String url) throws InvalidUrlException {
-            String location = url.trim();
+            final String location = url.trim();
             if (!URLValidator.validate(location))
                 throw new InvalidUrlException(location);
             return formulateAndGetShortUrl(location, ShortUrlGenerationStrategyFactory.getInstance().getDefault());
         }
 
         public ResponseHeaders redirect(final String shortUrl) {
-            String location = shortUrlsToLocation.get(shortUrl);
+            final String location = shortUrlToLocation.get(shortUrl);
             if (location == null || location.isEmpty())
                 return new ResponseHeaders("404");
             return new ResponseHeaders("302", location);
         }
 
         private String formulateAndGetShortUrl(final String url, final IShortUrlGenerationStrategy urlShortenStrategy) throws InvalidUrlException {
-            String shortUrl = urlShortenStrategy.generate(url);
-            String oldValue = shortUrlsToLocation.putIfAbsent(shortUrl, url);
+            final String shortUrl = urlShortenStrategy.generate(url);
+            final String oldValue = shortUrlToLocation.putIfAbsent(shortUrl, url);
             if (oldValue != null)
                 return formulateAndGetShortUrl(url, urlShortenStrategy);
             return shortUrl;
@@ -103,7 +103,7 @@ public class TinyUrl {
     public static class SnowflakeIDBasedShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
 
         @Override
-        public String generate(String url) {
+        public String generate(final String url) {
             return Base62.encode(LockFreeSnowflakeIDGenerator.getInstance().generate());
         }
 
@@ -146,7 +146,7 @@ public class TinyUrl {
             private final AtomicLong lastTimestampAndSequence = new AtomicLong(0L);
             // Upper 52 bits: timestamp, lower 12 bits: sequence
 
-            public LockFreeSnowflakeIDGenerator (long nodeId) {
+            public LockFreeSnowflakeIDGenerator (final long nodeId) {
                 if (nodeId < 0 || nodeId > ((1L << 10) - 1))
                     throw new IllegalArgumentException("Invalid nodeId");
                 this.nodeId = nodeId;
@@ -229,7 +229,7 @@ public class TinyUrl {
     public static class UUIDv7ShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
 
         @Override
-        public String generate(String url) {
+        public String generate(final String url) {
             UUID uuid = UuidCreator.getTimeOrderedEpoch();
             return Base62.encode(toBytes(uuid));
         }
@@ -362,24 +362,23 @@ public class TinyUrl {
         }
     }
 
-    public static class CompositeShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
+    public record CompositeShortUrlGenerationStrategy(
+            List<IShortUrlGenerationStrategy> strategies) implements IShortUrlGenerationStrategy {
 
-        public final List<IShortUrlGenerationStrategy> strategies;
-
-        public CompositeShortUrlGenerationStrategy(final List<IShortUrlGenerationStrategy> strategies) {
-            this.strategies = Collections.unmodifiableList(strategies);
-        }
-
-        @Override
-        public String generate(final String url) {
-            for (IShortUrlGenerationStrategy strategy : strategies) {
-                String shortUrl = strategy.generate(url);
-                if (shortUrl != null && shortUrl.isEmpty())
-                    return shortUrl;
+            public CompositeShortUrlGenerationStrategy(final List<IShortUrlGenerationStrategy> strategies) {
+                this.strategies = Collections.unmodifiableList(strategies);
             }
-            return null;
+
+            @Override
+            public String generate(final String url) {
+                for (IShortUrlGenerationStrategy strategy : strategies) {
+                    String shortUrl = strategy.generate(url);
+                    if (shortUrl != null && shortUrl.isEmpty())
+                        return shortUrl;
+                }
+                return null;
+            }
         }
-    }
 
     public class URLValidator {
         public static boolean validate(final String url) {
