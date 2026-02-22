@@ -1,13 +1,18 @@
 package urlshortner;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,13 +52,14 @@ public class TinyUrl {
     }
 
     public enum ShortUrlGenerationStrategy {
-        COUNTER_BASED, RANDOM, HASH_BASE64, GENERATED, GENERATED_OR_RANDOM
+        SNOWFLAKE_ID_BASED, COUNTER_BASED, RANDOM, HASH_BASE64, GENERATED, GENERATED_OR_RANDOM
     }
 
     public static final class ShortUrlGenerationStrategyFactory {
         private final Map<ShortUrlGenerationStrategy, IShortUrlGenerationStrategy> strategies;
         private ShortUrlGenerationStrategyFactory() {
             strategies = new HashMap<>();
+            strategies.put(ShortUrlGenerationStrategy.SNOWFLAKE_ID_BASED, new SnowflakeIDBasedShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.COUNTER_BASED, new CounterBasedShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.RANDOM, new RandomShortUrlGenerationStrategy());
             strategies.put(ShortUrlGenerationStrategy.HASH_BASE64, new HashBase64ShortUrlGenerationStrategy());
@@ -76,7 +82,7 @@ public class TinyUrl {
         }
 
         public IShortUrlGenerationStrategy getDefault() {
-            return strategies.get(ShortUrlGenerationStrategy.COUNTER_BASED);
+            return strategies.get(ShortUrlGenerationStrategy.SNOWFLAKE_ID_BASED);
         }
 
         @Override
@@ -89,13 +95,140 @@ public class TinyUrl {
         String generate(String url);
     }
 
+    public static class SnowflakeIDBasedShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
+
+        @Override
+        public String generate(String url) {
+            return Base62.encode(LockFreeSnowflakeIDGenerator.getInstance().generate());
+        }
+
+        public static class Base62 {
+            private static final String CHARSET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            public static String encode(long value) {
+                if (value == 0) return "0";
+                StringBuilder sb = new StringBuilder();
+                while (value > 0) {
+                    int remainder = (int) (value % 62);
+                    sb.append(CHARSET.charAt(remainder));
+                    value /= 62;
+                }
+                return sb.reverse().toString();
+            }
+        }
+
+        public class Constants {
+
+            public static final long SIGN_BIT_LENGTH = 1l;
+
+            public static final long EPOCH_BIT_LENGTH = 41l;
+
+            public static final long NODE_ID_BIT_LENGTH = 10l;
+
+            public static final long SEQUENCE_BIT_LENGTH = 12l;
+
+        }
+
+        /**
+         * 1SignBit+41BitTimestamp+10BitMachineId+12SequenceNumber
+         */
+        public static class LockFreeSnowflakeIDGenerator {
+            private final long nodeId;
+            private final long maxSequence = (1L << 12) - 1; // 12-bit sequence
+            private final long timeStampLeftShift = 10 + 12; // nodeId + sequence bits
+            private static final long EPOCH_START = Instant.EPOCH.toEpochMilli();
+
+            private final AtomicLong lastTimestampAndSequence = new AtomicLong(0L);
+            // Upper 52 bits: timestamp, lower 12 bits: sequence
+
+            public LockFreeSnowflakeIDGenerator (long nodeId) {
+                if (nodeId < 0 || nodeId > ((1L << 10) - 1))
+                    throw new IllegalArgumentException("Invalid nodeId");
+                this.nodeId = nodeId;
+            }
+
+            public static LockFreeSnowflakeIDGenerator getInstance() {
+                return SingletonHolder.INSTANCE;
+            }
+
+            private static final class SingletonHolder {
+                public static final LockFreeSnowflakeIDGenerator INSTANCE = new LockFreeSnowflakeIDGenerator(
+                        new NodeIdGenerator().generate());
+            }
+
+            public long generate() {
+                while (true) {
+                    long oldValue = lastTimestampAndSequence.get();
+                    long lastTimestamp = oldValue >>> 12;
+                    long sequence = oldValue & maxSequence;
+
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime < lastTimestamp) {
+                        throw new RuntimeException("Clock moved backwards");
+                    }
+
+                    if (currentTime == lastTimestamp) {
+                        sequence = (sequence + 1) & maxSequence;
+                        if (sequence == 0) {
+                            // Sequence overflow, wait for next millisecond
+                            currentTime = waitNextMillis(currentTime);
+                        }
+                    } else {
+                        sequence = 0;
+                    }
+
+                    long newValue = (currentTime << 12) | sequence;
+                    if (lastTimestampAndSequence.compareAndSet(oldValue, newValue)) {
+                        return ((currentTime - EPOCH_START) << timeStampLeftShift)
+                                | (nodeId << 12)
+                                | sequence;
+                    }
+                    // CAS failed, retry
+                }
+            }
+
+            private long waitNextMillis(long currentTime) {
+                while (System.currentTimeMillis() <= currentTime) {}
+                return System.currentTimeMillis();
+            }
+        }
+
+        public static class NodeIdGenerator {
+
+            private static final long maxNodeIdValue = (1L << Constants.NODE_ID_BIT_LENGTH) - 1;
+
+            public Long generate() {
+                long nodeId;
+                try {
+                    final StringBuilder builder = new StringBuilder();
+                    final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+                    while (networkInterfaces.hasMoreElements()) {
+                        final NetworkInterface networkInterface = networkInterfaces.nextElement();
+                        final byte[] mac = networkInterface.getHardwareAddress();
+                        if (mac != null)
+                            for (int i = 0; i < mac.length; ++i)
+                                builder.append(String.format("%02X", mac[i]));
+                    }
+                    nodeId = builder.toString().hashCode();
+                }
+                catch (final SocketException se) {
+                    nodeId = (new SecureRandom().nextInt());
+                }
+                nodeId &= maxNodeIdValue;
+                return nodeId;
+            }
+
+        }
+    }
+
     public static class CounterBasedShortUrlGenerationStrategy implements IShortUrlGenerationStrategy {
 
         private final Counter counter = new Counter();
 
         @Override
         public String generate(final String url) {
-            return Base62Encoder.encode(counter.incrementAndGet());
+//            return Base62.encode(counter.incrementAndGet());
+            return Base64.getEncoder().encodeToString(String.valueOf(counter.incrementAndGet()).getBytes());
         }
 
         public class Counter {
@@ -106,30 +239,18 @@ public class TinyUrl {
             }
         }
 
-        public class Base62Encoder {
+        public static class Base62 {
+            private static final String CHARSET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-            private static final String CHARSET =
-                    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-            public static String encode(long id) {
+            public static String encode(long value) {
                 StringBuilder sb = new StringBuilder();
-
-                while (id > 0) {
-                    int remainder = (int) (id % 62);
+                if (value == 0) return "0";
+                while (value > 0) {
+                    int remainder = (int)(value % 62);
                     sb.append(CHARSET.charAt(remainder));
-                    id /= 62;
+                    value /= 62;
                 }
-
                 return sb.reverse().toString();
-            }
-
-            public static long decode(final String shortUrl) {
-                long id = 0;
-
-                for (final char c : shortUrl.toCharArray())
-                    id = id * 62 + CHARSET.indexOf(c);
-
-                return id;
             }
         }
     }
@@ -279,10 +400,14 @@ public class TinyUrl {
         }
     }
 
-    public static void main(String[] args) throws InvalidUrlException {
+    public static void main(String[] args) throws InvalidUrlException, InterruptedException {
         String shortUrl = null;
         final URLShortener urlShortener = new TinyUrl().new URLShortener();
         System.out.println(urlShortener.redirect("1"));
+        System.out.println(shortUrl = urlShortener.createShortUrl("https://google.com/"));
+        System.out.println(shortUrl = urlShortener.createShortUrl("https://google.com/"));
+        System.out.println(shortUrl = urlShortener.createShortUrl("https://google.com/"));
+        Thread.sleep(1l);
         System.out.println(shortUrl = urlShortener.createShortUrl("https://google.com/"));
         System.out.println(urlShortener.redirect("1"));
         System.out.println(urlShortener.redirect(shortUrl));

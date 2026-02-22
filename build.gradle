@@ -61,13 +61,16 @@ repositories {
 //Add your dependencies here
 dependencies {
     implementation(
-            'com.google.guava:guava:33.3.1-jre'
+            'com.google.guava:guava:33.3.1-jre',
+            'org.jctools:jctools-core:4.0.1',
+            'org.openjdk.jmh:jmh-core:1.37',
     )
     compileOnly (
             'org.projectlombok:lombok:1.18.30'
     )
     annotationProcessor (
-            'org.projectlombok:lombok:1.18.30'
+            'org.projectlombok:lombok:1.18.30',
+            'org.openjdk.jmh:jmh-generator-annprocess:1.37',
     )
     testCompileOnly (
             'org.projectlombok:lombok:1.18.30'
