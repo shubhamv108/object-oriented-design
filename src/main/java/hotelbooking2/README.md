@@ -51,7 +51,7 @@ AbstractRoomAvailabilityStrategy
 - hotelIdToRoomInventory: Map<String, RoomTypeInventory>
 + isRoomAvailable(roomId: String, start: Instant, end: Instant, roomCount: int): Boolean
 + abstract isRoomTypeAvailable(roomType: RoomType, dates: List<LocalDate>, roomCount: int)
-+ addBooking(booking: Booking): void
++ addBooking(reservation: Booking): void
 + getAvailableRoomIds(hotelId: String, roomType: RoomType, start: Instant, end: Instant, roomCount: int): List<String>
 + abstract getAvailableRoomIdsWithDates(hotelId: String, roomType: RoomType, dates: List<LocalDate>, roomCount: int): Map<String: Set<LocalDate>>
 
@@ -87,8 +87,8 @@ DateListGenerator:
 - generate(start: Instant, end: Instant): List<LocalDate>
 
 <<IBookingState>>
-+ confirm(booking: Booking)
-+ cancel(booking: Booking)
++ confirm(reservation: Booking)
++ cancel(reservation: Booking)
 
 CreatedBookingState(IBookingState)
 ConfirmedBookingState(IBookingState)
