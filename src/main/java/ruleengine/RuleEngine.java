@@ -150,7 +150,7 @@ public class RuleEngine {
         }
     }
 
-    class Engine {
+    public class Engine {
         private final List<EngineEntry> entries = new ArrayList<>();
 
         public void addEntry(EngineEntry engineEntry) {
