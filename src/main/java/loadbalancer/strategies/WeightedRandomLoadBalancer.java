@@ -18,10 +18,10 @@ public non-sealed class WeightedRandomLoadBalancer extends AbstractLoadBalanceSt
     }
 
     @Override
-    public Server getServer(List<Server> servers, Request input) {
+    public Server getServer(final List<Server> servers, final Request request) {
         int randomWeight = random.nextInt(totalWeight);
         int cumulativeWeight = 0;
-        for (Server server : servers) {
+        for (final Server server : servers) {
             cumulativeWeight += server.getWeight();
             if (randomWeight < cumulativeWeight) {
                 return server;

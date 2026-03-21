@@ -17,7 +17,7 @@ public non-sealed class RandomServerLoadBalanceStrategy extends AbstractLoadBala
 
     @Override
     public Server getServer(final List<Server> servers, final Request request) {
-        int index = random.nextInt(servers.size());
+        final int index = random.nextInt(servers.size());
         return servers.get(index);
     }
 }

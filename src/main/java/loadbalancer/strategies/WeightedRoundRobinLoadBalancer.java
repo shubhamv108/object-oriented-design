@@ -17,7 +17,7 @@ public non-sealed class WeightedRoundRobinLoadBalancer extends AbstractLoadBalan
     }
 
     @Override
-    public Server getServer(List<Server> servers, Request input) {
+    public Server getServer(List<Server> servers, Request request) {
         while (true) {
             int index = currentIndex.get();
             Server currentServer = servers.get(index);

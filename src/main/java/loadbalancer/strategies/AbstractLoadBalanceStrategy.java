@@ -8,17 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public sealed abstract class AbstractLoadBalanceStrategy implements ILoadBalanceStrategy
-        permits
-        HashLoadBalancerStrategy,
-        RoundRobinLoadBalanceStrategy,
-        RandomServerLoadBalanceStrategy,
-        WeightedRandomLoadBalancer,
-        WeightedRoundRobinLoadBalancer,
-        DynamicWeightedRoundRobinLoadBalancer,
-        LeastResponseTimeLoadBalanceStrategy,
-        LeastConnectionLoadBalanceStrategy,
-        DynamicWeightedRoundRobinLeastConnectionsLoadBalancer,
-        PeakExponentiallyWeightedMovingAverageLoadBalancer {
+        permits DynamicWeightedRoundRobinLeastConnectionsLoadBalancer, DynamicWeightedRoundRobinLoadBalancer, HashLoadBalancerStrategy, LeastConnectionLoadBalanceStrategy, LeastResponseTimeLoadBalanceStrategy, PeakExponentiallyWeightedMovingAverageLoadBalancer, RandomServerLoadBalanceStrategy, RoundRobinLoadBalanceStrategy, WeightedRandomLoadBalancer, WeightedRoundRobinLoadBalancer, ConsistentHashingStrategy {
 
     protected final Backend backend;
 
@@ -49,5 +39,5 @@ public sealed abstract class AbstractLoadBalanceStrategy implements ILoadBalance
         return healthyServers;
     }
 
-    public abstract Server getServer(List<Server> servers, Request input);
+    public abstract Server getServer(List<Server> servers, Request request);
 }

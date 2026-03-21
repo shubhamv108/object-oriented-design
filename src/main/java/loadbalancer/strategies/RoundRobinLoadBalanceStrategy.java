@@ -17,7 +17,7 @@ public non-sealed class RoundRobinLoadBalanceStrategy extends AbstractLoadBalanc
 
     @Override
     public Server getServer(final List<Server> servers, final Request request) {
-        int index = nextIndex.getAndUpdate(i -> i == Integer.MAX_VALUE ? 0 : i+1);
+        final int index = nextIndex.getAndUpdate(i -> i == Integer.MAX_VALUE ? 0 : i+1);
         return servers.get(index % servers.size());
     }
 }

@@ -94,7 +94,7 @@ public non-sealed class PeakExponentiallyWeightedMovingAverageLoadBalancer exten
     }
 
     @Override
-    public Server getServer(List<Server> servers, Request input) {
+    public Server getServer(List<Server> servers, Request request) {
         lock.lock();
         try {
             return servers.stream()
