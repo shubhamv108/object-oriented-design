@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public final class ObjectToJsonPrettifyParse {
+public final class ObjectToJsonPrettifyParser {
 
     private final int newLineIndentation;
 
     private final StringBuilder jsonBuilder = new StringBuilder();
 
-    public ObjectToJsonPrettifyParse() {
+    public ObjectToJsonPrettifyParser() {
         this(2);
     }
 
-    public ObjectToJsonPrettifyParse(int newLineIndentation) {
+    public ObjectToJsonPrettifyParser(int newLineIndentation) {
         this.newLineIndentation = newLineIndentation;
     }
 
@@ -87,8 +87,8 @@ public final class ObjectToJsonPrettifyParse {
     }
 
     public static void main(String[] args) {
-        System.out.println(new ObjectToJsonPrettifyParse().toJson(List.of(0, 1, 2, 3)));
-        System.out.println(new ObjectToJsonPrettifyParse().toJson(new LinkedHashMap<>() {
+        System.out.println(new ObjectToJsonPrettifyParser().toJson(List.of(0, 1, 2, 3)));
+        System.out.println(new ObjectToJsonPrettifyParser().toJson(new LinkedHashMap<>() {
             {
                 put("x", new LinkedHashMap<>() {
                     {
@@ -98,7 +98,7 @@ public final class ObjectToJsonPrettifyParse {
                 });
             }
         }));
-        System.out.println(new ObjectToJsonPrettifyParse().toJson(List.of(
+        System.out.println(new ObjectToJsonPrettifyParser().toJson(List.of(
                 "test \"fsdfds\" fsfds",
                     new LinkedHashMap() {
                         {
