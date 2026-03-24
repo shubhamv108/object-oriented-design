@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 public final class ObjectToJsonPrettifyParser {
 
-    private final int newLineIndentation;
+    private final int newLineIndentBy;
 
     private final StringBuilder jsonBuilder = new StringBuilder();
 
@@ -16,60 +16,85 @@ public final class ObjectToJsonPrettifyParser {
         this(2);
     }
 
-    public ObjectToJsonPrettifyParser(int newLineIndentation) {
-        this.newLineIndentation = newLineIndentation;
+    public ObjectToJsonPrettifyParser(final int newLineIndentBy) {
+        this.newLineIndentBy = newLineIndentBy;
     }
 
-    public final String toJson(final Object value) {
+    public String toJson(final Object value) {
         toJson(value, 0);
         return jsonBuilder.toString();
     }
 
-    private void toJson(final Object value, final int indent) {
+    private void toJson(final Object value, final int indentBy) {
         switch (value) {
             case null -> jsonBuilder.append("null");
-            case Boolean bool -> jsonBuilder.append(bool);
-            case Number number -> jsonBuilder.append(number);
-            case String string -> format(string);
-            case Collection<?> collection -> format(collection, indent, indent + newLineIndentation);
-            case Map<?, ?> map -> format(map, indent, indent + newLineIndentation) ;
+            case final Boolean bool -> jsonBuilder.append(bool);
+            case final Number number -> jsonBuilder.append(number);
+            case final String string -> toJson(string);
+            case final Collection<?> collection -> toJson(collection, indentBy);
+            case final Map<?, ?> map -> toJson(map, indentBy);
             default -> throw new IllegalStateException("Unexpected value: " + value);
-        };
+        }
     }
 
-    private final void format(String string) {
+    private void toJson(final String string) {
         jsonBuilder.append("\"");
-        jsonBuilder.append(escapeString(string));
+        escapeStringToJson(string);
         jsonBuilder.append("\"");
     }
 
-    private String escapeString(String s) {
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+    private void escapeStringToJson(final String string) {
+        if (string.isEmpty())
+            return;
+
+        final int stringLength =  string.length();
+        for (int characterOffset = 0; characterOffset < stringLength; ++characterOffset) {
+            final char c = string.charAt(characterOffset);
+            switch (c) {
+                case '\\':
+                    jsonBuilder.append("\\\\");
+                    break;
+                case '"':
+                    jsonBuilder.append("\\\"");
+                    break;
+                case '\n':
+                    jsonBuilder.append("\\n");
+                    break;
+                case '\r':
+                    jsonBuilder.append("\\r");
+                    break;
+                case '\t':
+                    jsonBuilder.append("\\t");
+                    break;
+                default:
+                    jsonBuilder.append(c);
+            }
+        }
     }
 
-    private void format(Collection<?> c, int indent, int childIndent) {
+    private void toJson(final Collection<?> collection, final int indentBy) {
+        final int childIndent = indentBy + newLineIndentBy;
         jsonBuilder.append("[");
-        int size = c.size(), i = 0;
-        for (Object o : c) {
-            changeLine(childIndent);
+        final int size = collection.size();
+        int i = 0;
+        for (final Object o : collection) {
+            nextLine(childIndent);
             toJson(o, childIndent);
             if (i < size - 1)
                 jsonBuilder.append(",");
             ++i;
         }
-        changeLine(indent);
+        nextLine(indentBy);
         jsonBuilder.append("]");
     }
 
-    private void format(Map<?, ?> map, int indent, int childIndent) {
+    private void toJson(final Map<?, ?> map, final int indentBy) {
+        final int childIndent = indentBy + newLineIndentBy;
         jsonBuilder.append("{");
-        int size = map.size(), i = 0;
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            changeLine(childIndent);
+        final int size = map.size();
+        int i = 0;
+        for (final Map.Entry<?, ?> entry : map.entrySet()) {
+            nextLine(childIndent);
             toJson(entry.getKey(), childIndent);
             jsonBuilder.append(": ");
             toJson(entry.getValue(), childIndent);
@@ -77,11 +102,11 @@ public final class ObjectToJsonPrettifyParser {
                 jsonBuilder.append(",");
             ++i;
         }
-        changeLine(indent);
+        nextLine(indentBy);
         jsonBuilder.append("}");
     }
 
-    private void changeLine(int indent) {
+    private void nextLine(int indent) {
         jsonBuilder.append("\n");
         IntStream.range(0, indent).forEach(i -> jsonBuilder.append(" "));
     }
