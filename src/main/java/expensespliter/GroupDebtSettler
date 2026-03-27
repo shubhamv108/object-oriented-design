@@ -1,0 +1,42 @@
+public List<Transaction> simplifyGroupDebts(String groupId) {
+    Group group = groups.get(groupId);
+
+    Map<User, Double> netBalances = new HashMap<>();
+    for (User member : group.getMembers()) {
+        double balance = 0;
+        for (Map.Entry<User, Double> entry : member.getBalanceSheet().getBalances().entrySet())
+            if (group.getMembers().contains(entry.getKey()))
+                balance += entry.getValue();
+
+        netBalances.put(member, balance);
+    }
+
+    List<Map.Entry<User, Double>> creditors = netBalances.entrySet().stream()
+            .filter(e -> e.getValue() > 0)
+            .collect(Collectors.toList());
+    List<Map.Entry<User, Double>> debtors = netBalances.entrySet().stream()
+            .filter(e -> e.getValue() < 0)
+            .collect(Collectors.toList());
+
+    creditors.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+    debtors.sort(Map.Entry.comparingByValue());
+
+    List<Transaction> transactions = new ArrayList<>();
+    int i = 0, j = 0;
+    while (i < creditors.size() && j < debtors.size()) {
+        Map.Entry<User, Double> creditor = creditors.get(i);
+        Map.Entry<User, Double> debtor = debtors.get(j);
+
+        double amountToSettle = Math.min(creditor.getValue(), -debtor.getValue());
+        transactions.add(new Transaction(debtor.getKey().toString(), creditor.getKey().toString(), amountToSettle));
+
+        creditor.setValue(creditor.getValue() - amountToSettle);
+        debtor.setValue(debtor.getValue() + amountToSettle);
+
+        if (Math.abs(creditor.getValue()) < 0.01)
+            ++i;
+        if (Math.abs(debtor.getValue()) < 0.01)
+            ++j;
+    }
+    return transactions;
+}
