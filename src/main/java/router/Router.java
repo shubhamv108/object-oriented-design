@@ -16,6 +16,23 @@ public class Router {
     }
 
     public class Endpoint {
+
+        private String service;
+        private long connectTimeoutInMilliseconds;
+        private long readTimeoutInMilliseconds;
+
+        public Endpoint() {}
+
+        public Endpoint(String service) {
+            this.service = service;
+        }
+
+        public Endpoint(String service, long connectTimeoutInMilliseconds, long readTimeoutInMilliseconds) {
+            this.service = service;
+            this.connectTimeoutInMilliseconds = connectTimeoutInMilliseconds;
+            this.readTimeoutInMilliseconds = readTimeoutInMilliseconds;
+        }
+
         public void invoke(HttpMethod method, URI uri) {
             System.out.println(method + " " + uri);
         }
@@ -50,11 +67,12 @@ public class Router {
             List<Route> routes = new ArrayList<>();
             routes.add(new Route(HttpMethod.GET, "/networks", new Endpoint()));
             routes.add(new Route(HttpMethod.POST, "/networks", new Endpoint()));
-            routes.add(new Route(HttpMethod.POST, "/networks/.*/devices", new Endpoint()));
-            routes.add(new Route(HttpMethod.GET, "/networks/.*/devices", new Endpoint()));
-            routes.add(new Route(HttpMethod.DELETE, "/networks/.*/devices", new Endpoint()));
-            routes.add(new Route(HttpMethod.GET, "/chunks/.*", new Endpoint()));
+            routes.add(new Route(HttpMethod.POST, "/networks/[^/]+/devices", new Endpoint()));
+            routes.add(new Route(HttpMethod.GET, "/networks/[^/]+/devices", new Endpoint()));
+            routes.add(new Route(HttpMethod.DELETE, "/networks/[^/]+/devices", new Endpoint()));
+            routes.add(new Route(HttpMethod.GET, "/chunks/[^/]+", new Endpoint()));
             routes.add(new Route(HttpMethod.POST, "/chunks/", new Endpoint()));
+            routes.add(new Route(HttpMethod.GET, "/chunks/", new Endpoint()));
             return routes;
         }
 
@@ -187,6 +205,8 @@ public class Router {
         router.route(HttpMethod.GET, new URI("/networks/1/devices"));
         router.route(HttpMethod.GET, new URI("/networks/1/"));
         router.route(HttpMethod.GET, new URI("/chunks/1"));
+        router.route(HttpMethod.POST, new URI("/chunks/"));
+        router.route(HttpMethod.GET, new URI("/chunks/"));
     }
 
 }
