@@ -1,5 +1,6 @@
 package router;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -15,19 +16,67 @@ public class Router {
         GET, POST, PUT, PATCH, DELETE, OPTION,
     }
 
+    public class Service {
+        private final String name;
+        private long connectTimeoutInMilliseconds;
+        private long readTimeoutInMilliseconds;
+
+        public Service(String name) {
+            this.name = name;
+        }
+
+        public InetSocketAddress getAddress() {
+            return new TopologyServiceDiscovery().getInetSocketAddress(name);
+        }
+
+        public void setConnectTimeoutInMilliseconds(long connectTimeoutInMilliseconds) {
+            this.connectTimeoutInMilliseconds = connectTimeoutInMilliseconds;
+        }
+
+        public void setReadTimeoutInMilliseconds(long readTimeoutInMilliseconds) {
+            this.readTimeoutInMilliseconds = readTimeoutInMilliseconds;
+        }
+
+        public long getConnectTimeoutInMilliseconds() {
+            return connectTimeoutInMilliseconds;
+        }
+
+        public long getReadTimeoutInMilliseconds() {
+            return readTimeoutInMilliseconds;
+        }
+    }
+
+    public interface IServiceDiscovery {
+        InetSocketAddress getInetSocketAddress(String serviceName);
+    }
+
+    public class DNSServiceDiscovery implements IServiceDiscovery {
+        @Override
+        public InetSocketAddress getInetSocketAddress(String serviceName) {
+            return null;
+        }
+    }
+
+    public class TopologyServiceDiscovery implements IServiceDiscovery {
+        @Override
+        public InetSocketAddress getInetSocketAddress(String serviceName) {
+            return null;
+        }
+    }
+
     public class Endpoint {
 
-        private String service;
+        private Service service;
         private long connectTimeoutInMilliseconds;
         private long readTimeoutInMilliseconds;
 
         public Endpoint() {}
 
-        public Endpoint(String service) {
+        public Endpoint(Service service) {
             this.service = service;
         }
 
-        public Endpoint(String service, long connectTimeoutInMilliseconds, long readTimeoutInMilliseconds) {
+        public Endpoint(Service service, long connectTimeoutInMilliseconds, long readTimeoutInMilliseconds) {
             this.service = service;
             this.connectTimeoutInMilliseconds = connectTimeoutInMilliseconds;
             this.readTimeoutInMilliseconds = readTimeoutInMilliseconds;

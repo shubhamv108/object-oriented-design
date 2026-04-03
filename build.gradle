@@ -5,11 +5,16 @@ plugins {
 
 group 'code.shubham'
 version '0.0.1'
-sourceCompatibility = '21'
-targetCompatibility = '21'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
 
 jacoco { //Please do not change this
-    toolVersion = "0.8.4"
+    toolVersion = "0.8.12"
 //    reportsDir = file("$buildDir/jacoco")
 }
 
@@ -58,34 +63,33 @@ repositories {
     mavenCentral()
 }
 
-//Add your dependencies here
 dependencies {
     implementation(
             'com.google.guava:guava:33.3.1-jre',
             'org.jctools:jctools-core:4.0.1',
-            'org.openjdk.jmh:jmh-core:1.37',
+            'org.openjdk.jmh:jmh-core:1.37',  // Keep at 1.37
             'com.github.f4b6a3:uuid-creator:6.1.0',
     )
     compileOnly (
-            'org.projectlombok:lombok:1.18.30'
+            'org.projectlombok:lombok:1.18.40'  // Update this
     )
     annotationProcessor (
-            'org.projectlombok:lombok:1.18.30',
+            'org.projectlombok:lombok:1.18.40',  // Update this
             'org.openjdk.jmh:jmh-generator-annprocess:1.37',
     )
     testCompileOnly (
-            'org.projectlombok:lombok:1.18.30'
+            'org.projectlombok:lombok:1.18.40'  // Update this
     )
     testAnnotationProcessor (
-            'org.projectlombok:lombok:1.18.30'
+            'org.projectlombok:lombok:1.18.40'  // Update this
     )
     testImplementation(
-            'junit:junit:4.13.1',
-            'org.junit.jupiter:junit-jupiter-api:5.9.0',
-            'org.junit.jupiter:junit-jupiter-engine:5.9.0',
-            'org.junit.vintage:junit-vintage-engine:5.9.0',
-            'org.junit.platform:junit-platform-runner:1.9.0',
-            'org.mockito:mockito-core:4.8.0',
-            'org.mockito:mockito-junit-jupiter:4.8.0'
+            'junit:junit:4.13.2',  // Security update
+            'org.junit.jupiter:junit-jupiter-api:5.11.4',  // Update
+            'org.junit.jupiter:junit-jupiter-engine:5.11.4',  // Update
+            'org.junit.vintage:junit-vintage-engine:5.11.4',  // Update
+            'org.junit.platform:junit-platform-runner:1.11.4',  // Update
+            'org.mockito:mockito-core:5.14.2',  // Update
+            'org.mockito:mockito-junit-jupiter:5.14.2'  // Update
     )
 }
