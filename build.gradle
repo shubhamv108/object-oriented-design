@@ -67,29 +67,29 @@ dependencies {
     implementation(
             'com.google.guava:guava:33.3.1-jre',
             'org.jctools:jctools-core:4.0.1',
-            'org.openjdk.jmh:jmh-core:1.37',  // Keep at 1.37
+            'org.openjdk.jmh:jmh-core:1.37',
             'com.github.f4b6a3:uuid-creator:6.1.0',
     )
     compileOnly (
-            'org.projectlombok:lombok:1.18.40'  // Update this
+            'org.projectlombok:lombok:1.18.40'
     )
     annotationProcessor (
-            'org.projectlombok:lombok:1.18.40',  // Update this
+            'org.projectlombok:lombok:1.18.40',
             'org.openjdk.jmh:jmh-generator-annprocess:1.37',
     )
     testCompileOnly (
-            'org.projectlombok:lombok:1.18.40'  // Update this
+            'org.projectlombok:lombok:1.18.40'
     )
     testAnnotationProcessor (
-            'org.projectlombok:lombok:1.18.40'  // Update this
+            'org.projectlombok:lombok:1.18.40'
     )
     testImplementation(
-            'junit:junit:4.13.2',  // Security update
-            'org.junit.jupiter:junit-jupiter-api:5.11.4',  // Update
-            'org.junit.jupiter:junit-jupiter-engine:5.11.4',  // Update
-            'org.junit.vintage:junit-vintage-engine:5.11.4',  // Update
-            'org.junit.platform:junit-platform-runner:1.11.4',  // Update
-            'org.mockito:mockito-core:5.14.2',  // Update
-            'org.mockito:mockito-junit-jupiter:5.14.2'  // Update
+            'junit:junit:4.13.2',
+            'org.junit.jupiter:junit-jupiter-api:5.11.4',
+            'org.junit.jupiter:junit-jupiter-engine:5.11.4',
+            'org.junit.vintage:junit-vintage-engine:5.11.4',
+            'org.junit.platform:junit-platform-runner:1.11.4',
+            'org.mockito:mockito-core:5.14.2',
+            'org.mockito:mockito-junit-jupiter:5.14.2'
     )
 }
