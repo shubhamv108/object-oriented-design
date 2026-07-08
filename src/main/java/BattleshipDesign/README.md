@@ -1,8 +1,8 @@
                          BattleShip Game
- Design and implement a battleship game to be played between two players until one comes out
+ Design and implement a battleship sport to be played between two players until one comes out
  as the winner.
  Requirements:
- ● The game will be played in a square area of the sea with NxN grids which will be called
+ ● The sport will be played in a square area of the sea with NxN grids which will be called
  a battlefield.
  “N” should be taken as input in your code.
  ● The battlefield will be divided in half between both the players. So in a NxN battlefield,
@@ -21,19 +21,19 @@
  ○ In case of a hit, the opponent’s ship is destroyed.
  ○ In case of a miss, nothing happens.
  ● No two missiles should ever be fired at the same coordinates throughout the course
- of the game.
- ● When all the ships of a particular player has been destroyed, he loses the game.
+ of the sport.
+ ● When all the ships of a particular player has been destroyed, he loses the sport.
  The following APIs have to be implemented:
  Mandatory:
  ● initGame(N)
- This will initialize the game with a battlefield of size NxN. Where the left half of
+ This will initialize the sport with a battlefield of size NxN. Where the left half of
  N/2xN will be assigned to PlayerA and the right half will be assigned to PlayerB
  ● addShip(id, size, x position PlayerA, y position PlayerA, x position PlayerB, y position
  PlayerB)
  This will add a ship of given size at the given coordinates in both the player’s
  fleet.
  ● startGame()
- This will begin the game, where PlayerA will always take the first turn. The output
+ This will begin the sport, where PlayerA will always take the first turn. The output
  of each step should be printed clearly in the console.
  For eg.
  PlayerA’s turn: Missile fired at (2, 4).
@@ -61,7 +61,7 @@
  ● Your code should be executable and clean.
  ● Your code should be properly refactored, and exceptions should be gracefully handled.
  ● Appropriate errors should be displayed on console when user input violates the rules of
- the game.
+ the sport.
  How will you be evaluated?
  ● Code Should be working
  ● Code readability and testability
