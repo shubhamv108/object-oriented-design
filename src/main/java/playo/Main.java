@@ -516,8 +516,8 @@ public class Main {
         private final LocalDate date;
         private final SlotRange preferredSlot;
         private String venueOfferingId;
-        private final Semaphore availableSpots;
-        private final Set<String> participantUserIds = new HashSet<>();
+        private final Semaphore availableSpots; // alternate use AtomicInteger + ReentrantLock + HashSet
+        private final Set<String> participantUserIds = ConcurrentHashMap.newKeySet();
         private final EventStatus status = EventStatus.CREATED;
 
         public Event(String id, String bookingId, int totalSpots, String organizerId, LocalDate date, SlotRange preferredSlot) {
