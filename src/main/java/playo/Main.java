@@ -1,9 +1,12 @@
 package playo;
 
+import playo.Main.PlayOService.SlotRange;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,7 +16,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +44,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Main {
-    public enum Sport {
+    public enum Sport { // move to class
         PICKLE_BALL, BADMINTON, CRICKET, FOOTBALL, TENNIS
     }
 
@@ -84,17 +90,26 @@ public class Main {
         private final String id;
         private final String venueId;
         private final Sport sport;
-        private LocalTime start;
-        private LocalTime end;
+        private final int startSlotNumber;
+        private final int endSlotNumber;
+        private final int slotSizeInMins;
+        private Set<String> playingAreaIds = ConcurrentHashMap.newKeySet();
 
-        public VenueOffering(String id, String venueId, Sport sport, LocalTime start, LocalTime end) {
+        public VenueOffering(String id, String venueId, Sport sport, int slotSizeInMins, int maxSlots, int startSlotNumber, int endslotNumber) {
             this.id = id;
             this.venueId = venueId;
             this.sport = sport;
-            this.start = start;
-            this.end = end;
+            this.startSlotNumber = startSlotNumber;
+            this.endSlotNumber = endslotNumber;
+            this.slotSizeInMins = slotSizeInMins;
         }
     }
+
+    public enum SlotBookingStatus {
+        CREATED, HOLD, CONFIRMED, CANCELLED;
+    }
+
+    public record Slot(int slotNumber, SlotBookingStatus status) {}
 
     public class PlayingArea {
         private final String id;
@@ -102,11 +117,38 @@ public class Main {
         private String name; // BadmintonCourt1, FootBallGround1
         private Double pricePerHour;
 
+        private final Map<LocalDate, PlayingAreaSchedule> schedules = new ConcurrentHashMap<>();
+
         public PlayingArea(String id, String venueOfferingId, String name, Double pricePerHour) {
             this.id = id;
             this.venueOfferingId = venueOfferingId;
             this.name = name;
             this.pricePerHour = pricePerHour;
+        }
+
+        public PlayingAreaSchedule getSchedule(LocalDate date) {
+            return schedules.computeIfAbsent(date, d -> new PlayingAreaSchedule());
+        }
+
+        public List<Slot> getSlots(LocalDate date, SlotRange range) {
+            PlayingAreaSchedule schedule = getSchedule(date);
+            BitSet held = schedule.heldSnapshot();
+            BitSet confirmed = schedule.confirmedSnapshot();
+            List<Slot> slots = new ArrayList<>();
+
+            for (int i = range.startIndex; i <= range.endIndex; ++i) {
+                SlotBookingStatus status;
+                if (confirmed.get(i)) {
+                    status = SlotBookingStatus.CONFIRMED;
+                } else if (held.get(i)) {
+                    status = SlotBookingStatus.HOLD;
+                } else {
+                    status = SlotBookingStatus.CREATED;
+                }
+
+                slots.add(new Slot(i, status));
+            }
+            return slots;
         }
     }
 
@@ -115,41 +157,85 @@ public class Main {
     }
 
     public enum BookingStatus {
-        CREATED, HOLD, CONFIRMED, CANCELLED
+        CREATE, HOLD, CONFIRM, CANCEL, FAIL
     }
 
     public class PlayingAreaBooking {
         private final String id;
         private final String playingAreaId;
-        private final Instant start;
-        private final Instant end;
+        private final LocalDate date;
+        private final SlotRange range;
         private final String bookingByUserId;
-
-        private BookingStatus status = BookingStatus.CREATED;
         private Instant holdExpiryAt;
+        private String eventId;
+        private final Sport sport;
 
-        public PlayingAreaBooking(String id, String playingAreaId, Instant start, Instant end, String bookingByUserId) {
+        private BookingStatus status = BookingStatus.CREATE;
+
+        public PlayingAreaBooking(String id, String playingAreaId, LocalDate date, SlotRange range, String bookingByUserId, Sport sport) {
             this.id = id;
             this.playingAreaId = playingAreaId;
-            this.start = start;
-            this.end = end;
+            this.date = date;
+            this.range = range;
             this.bookingByUserId = bookingByUserId;
+
+            this.sport = sport;
         }
 
         public void setStatus(BookingStatus status) {
             this.status = status;
         }
 
-        public void holdBooking(long holdWindowInSeconds) {
-            this.setStatus(BookingStatus.HOLD);
-            this.holdExpiryAt = Instant.now().plusSeconds(holdWindowInSeconds);
+        public void setHoldExpiryAt(Instant instant) {
+            this.holdExpiryAt = instant;
         }
 
-        public void confirm() {
-            if (Instant.now().isAfter(this.holdExpiryAt))
-                throw new IllegalStateException();
-            this.setStatus(BookingStatus.CONFIRMED);
-            this.holdExpiryAt = null;
+        public Instant getHoldExpiryAt() {
+            return holdExpiryAt;
+        }
+    }
+
+    public class PlayingAreaSchedule {
+        private final ReentrantLock lock = new ReentrantLock();
+
+        // Slots held while payment is in progress
+        private final BitSet heldSlots = new BitSet(48);
+        // Slots successfully booked
+        private final BitSet confirmedSlots = new BitSet(48);
+
+        public void lock() {
+            lock.lock();
+        }
+
+        public void unlock() {
+            lock.unlock();
+        }
+
+        public boolean isAvailable(SlotRange range) {
+            return heldSlots.get(range.startIndex, range.endIndex + 1).isEmpty()
+                    && confirmedSlots.get(range.startIndex, range.endIndex + 1).isEmpty();
+        }
+
+        public void hold(SlotRange range) {
+            heldSlots.set(range.startIndex, range.endIndex + 1);
+        }
+
+        public void confirm(SlotRange range) {
+            heldSlots.clear(range.startIndex, range.endIndex + 1);
+            confirmedSlots.set(range.startIndex, range.endIndex + 1);
+        }
+
+        public void release(SlotRange range) {
+            heldSlots.clear(range.startIndex, range.endIndex + 1);
+            confirmedSlots.clear(range.startIndex, range.endIndex + 1);
+        }
+
+        public BitSet heldSnapshot() {
+            return (BitSet) heldSlots.clone();
+        }
+
+        public BitSet confirmedSnapshot() {
+            return (BitSet) confirmedSlots.clone();
         }
     }
 
@@ -160,14 +246,11 @@ public class Main {
         private final Map<String, PlayingArea> playingAreas = new HashMap<>();
         private final Map<String, PlayingAreaBooking> playingAreaBookings = new HashMap<>();
 
-        private final Map<Sport, Set<String>> gameVenueOfferings = new HashMap<>();
-        private final Map<String, Map<LocalDate, Map<String, Set<String>>>> venueOfferingIdToPlayAreaBookingByDate = new HashMap<>();
+        private final Map<Sport, Set<String>> sportVenueOfferings = new HashMap<>();
 
         private final Map<String, Event> events = new HashMap<>();
         private final Map<String, EventParticipantBooking> eventParticipantBookings = new HashMap<>();
         private final Map<String, Set<String>> playAreaBookingToEventIds = new HashMap<>();
-
-        private static final Set<BookingStatus> UNAVALIABLE_BOOKING_STATUS = Collections.unmodifiableSet(Set.of(BookingStatus.HOLD, BookingStatus.CONFIRMED));
 
         public Sport[] getGames() {
             return Sport.values();
@@ -187,18 +270,20 @@ public class Main {
 
         public String addVenueOffering(Sport sport, String venueId, LocalTime start, LocalTime end) {
             String id = UUID.randomUUID().toString();
-            venueOfferings.put(id, new VenueOffering(id, venueId, sport, start, end));
+//            venueOfferings.put(id, new VenueOffering(id, venueId, sport, start, end, , ));
             return id;
         }
 
         public String addPlayingArea(String name, String venueOfferingId, Double pricePerHour) {
             String id = UUID.randomUUID().toString();
+            VenueOffering venueOffering = Optional.ofNullable(venueOfferings.get(venueOfferingId)).orElseThrow();
             playingAreas.put(id, new PlayingArea(id, venueOfferingId, name, pricePerHour));
+            venueOffering.playingAreaIds.add(id);
             return id;
         }
 
-        public Collection<VenueSearchResponse> getVenuesForGame(Sport sport) {
-            return gameVenueOfferings.getOrDefault(sport, Collections.emptySet())
+        public Collection<VenueSearchResponse> getVenuesForSport(Sport sport) {
+            return sportVenueOfferings.getOrDefault(sport, Collections.emptySet())
                     .stream()
                     .map(venueOfferingId -> {
                         VenueOffering venueOffering = venueOfferings.get(venueOfferingId);
@@ -208,136 +293,182 @@ public class Main {
                     .toList();
         }
 
-        public VenueOfferingAvailabilityForDateResponse getAvailabilityForVenue(String venueOfferingId, LocalDate date) {
-            VenueOffering venueOffering = venueOfferings.get(venueOfferingId);
-            List<PlayingAreaAvailabilityResponse> playingAreaAvailabilityResponse = venueOfferingIdToPlayAreaBookingByDate
-                    .getOrDefault(venueOfferingId, Collections.emptyMap())
-                    .getOrDefault(date, Collections.emptyMap())
-                    .values()
-                    .stream()
-                    .map(playingAreaBookings::get)
-                    .filter(booking -> UNAVALIABLE_BOOKING_STATUS.contains(booking.status))
-                    .collect(Collectors.groupingBy(
-                            booking -> booking.playingAreaId,
-                            Collectors.mapping(booking -> new BookedIntervals(booking.start, booking.end),
-                            Collectors.toList())))
-                    .entrySet()
-                    .stream()
-                    .map(entry -> {
-                        PlayingAreaBooking playingAreaBooking = playingAreaBookings.get(entry.getKey());
-                        PlayingArea playingArea = playingAreas.get(playingAreaBooking.playingAreaId);
-                        return new PlayingAreaAvailabilityResponse(playingArea.id, playingArea.name, entry.getValue(), playingArea.pricePerHour);
-                    }).toList();
-            return new VenueOfferingAvailabilityForDateResponse(venueOffering.start, venueOffering.end, playingAreaAvailabilityResponse);
+        public Map<String, List<Slot>> getAvailabilityForVenue(String venueOfferingId, LocalDate date) {
+            VenueOffering venueOffering = Optional.ofNullable(venueOfferings.get(venueOfferingId)).orElseThrow();
+            SlotRange range = new SlotRange(venueOffering.startSlotNumber, venueOffering.endSlotNumber);
+            return venueOffering.playingAreaIds.stream()
+                    .map(playingAreas::get)
+                    .collect(Collectors.toMap(
+                            playingArea -> playingArea.id,
+                            playingArea -> playingArea.getSlots(date, range)));
         }
 
-        public String createVenueBooking(String playingAreaId, Instant start, Instant end, String userId) {
-            if (end.isBefore(start))
-                throw new IllegalArgumentException();
+        public record SlotRange(int startIndex, int endIndex) {}
 
-            LocalDate startDate = start.atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate endDate   = end.atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalTime startTime = start.atZone(ZoneId.systemDefault()).toLocalTime();
-            LocalTime endTime   = end.atZone(ZoneId.systemDefault()).toLocalTime();
+        public String createVenueBooking(String playingAreaId, LocalDate date, SlotRange slotRange, String userId) {
             PlayingArea playingArea = Optional.ofNullable(playingAreas.get(playingAreaId)).orElseThrow();
             VenueOffering venueOffering = Optional.ofNullable(venueOfferings.get(playingArea.venueOfferingId)).orElseThrow();
 
-            if (!startDate.equals(endDate) || venueOffering.end.compareTo(startTime) < 0 || endTime.compareTo(venueOffering.start) < 0)
+            if (slotRange.startIndex < venueOffering.startSlotNumber
+                    || slotRange.endIndex > venueOffering.endSlotNumber
+                    || slotRange.startIndex > slotRange.endIndex)
                 throw new IllegalArgumentException();
 
-            PlayingAreaBooking booking = new PlayingAreaBooking(
+            PlayingAreaSchedule schedule = playingArea.getSchedule(date);
+
+            try {
+                schedule.lock();
+                if (!schedule.isAvailable(slotRange))
+                    throw new IllegalStateException("Slots already booked");
+
+                schedule.hold(slotRange);
+                PlayingAreaBooking booking = new PlayingAreaBooking(
                     UUID.randomUUID().toString(),
                     playingAreaId,
-                    start,
-                    end,
-                    userId);
+                    date,
+                    slotRange,
+                    userId,
+                    venueOffering.sport);
 
-            if (!isPlayAreaAvailable(playingArea.venueOfferingId, startDate, playingAreaId, start, end))
-                throw new IllegalStateException();
-            synchronized (playingArea) {
-                if (!isPlayAreaAvailable(playingArea.venueOfferingId, startDate, playingAreaId, start, end))
-                    throw new IllegalStateException();
+                booking.setStatus(BookingStatus.CREATE);
+                booking.setHoldExpiryAt(
+                        Instant.now().plusSeconds(300));
 
                 playingAreaBookings.put(booking.id, booking);
-                booking.holdBooking(300);
-                venueOfferingIdToPlayAreaBookingByDate.computeIfAbsent(playingArea.venueOfferingId, e -> new HashMap<>())
-                        .computeIfAbsent(startDate, e -> new HashMap<>())
-                        .computeIfAbsent(playingAreaId, e -> new HashSet<>())
-                        .add(booking.id);
-            }
-
-            if (BookingStatus.HOLD.equals(booking.status))
                 return booking.id;
-
-            throw new IllegalStateException();
+            } finally {
+                schedule.unlock();
+            }
         }
 
-        public boolean confirmVenueBooking(String bookingId, String userId) {
+        public boolean confirmVenueBooking(String bookingId) {
             PlayingAreaBooking booking = Optional.ofNullable(playingAreaBookings.get(bookingId)).orElseThrow();
-            if (!booking.bookingByUserId.equals(userId) || !BookingStatus.HOLD.equals(booking.status)) // use state pattern to avoid if conditions
+            if (BookingStatus.CONFIRM.equals(booking.status))
+                return true;
+            if (!BookingStatus.CREATE.equals(booking.status))
                 throw new IllegalStateException();
 
-           synchronized (booking) {
-               if (!BookingStatus.HOLD.equals(booking.status)) // use state pattern to avoid if conditions
-                   throw new IllegalStateException();
+            PlayingArea playingArea = Optional.ofNullable(playingAreas.get(booking.playingAreaId)).orElseThrow();
+            PlayingAreaSchedule schedule = playingArea.getSchedule(booking.date);
 
-               booking.confirm();
-               return true;
-           }
+            try {
+                schedule.lock();
+                // Another thread may have already confirmed/cancelled
+                if (BookingStatus.CONFIRM.equals(booking.status))
+                    return true;
+
+                if (Instant.now().isAfter(booking.getHoldExpiryAt())) {
+                    schedule.release(booking.range);
+                    booking.setStatus(BookingStatus.FAIL);
+                    throw new IllegalStateException("Booking hold expired");
+                }
+
+                if (!BookingStatus.CREATE.equals(booking.status))
+                    throw new IllegalStateException();
+
+                schedule.confirm(booking.range);
+                booking.setStatus(BookingStatus.CONFIRM);
+            } finally {
+                schedule.unlock();
+            }
+            return true;
         }
 
-        private boolean isPlayAreaAvailable(String venueOfferingId, LocalDate date, String playAreaId, Instant start, Instant end) {
-            return venueOfferingIdToPlayAreaBookingByDate
-                    .getOrDefault(venueOfferingId, Collections.emptyMap())
-                    .getOrDefault(date, Collections.emptyMap())
-                    .getOrDefault(playAreaId, Collections.emptySet())
-                    .stream()
-                    .map(playingAreaBookings::get)
-                    .anyMatch(booking -> !(booking.end.compareTo(start) < 0 || end.compareTo(booking.start) < 0));
+        public void cancelBooking(String bookingId) {
+            PlayingAreaBooking booking = Optional.ofNullable(playingAreaBookings.get(bookingId)).orElseThrow();
+            PlayingAreaSchedule schedule = playingAreas.get(booking.playingAreaId).getSchedule(booking.date);
+
+            try {
+                schedule.lock();
+                if (BookingStatus.CANCEL.equals(booking.status))
+                    return;
+
+                schedule.release(booking.range);
+                booking.setStatus(BookingStatus.CANCEL);
+            } finally {
+                schedule.unlock();
+            }
         }
 
-        public String createEvent(String bookingId, Instant start, Instant end, int maxParticipants, String createdByUserId) {
-            Event event = new Event(UUID.randomUUID().toString(), bookingId, start, end, maxParticipants, createdByUserId);
+        public String createEvent(String bookingId, Instant start, Instant end, int maxParticipants, String createdByUserId, LocalDate date, SlotRange preferredSlots) {
+            Event event = new Event(UUID.randomUUID().toString(), bookingId, maxParticipants, createdByUserId, date, preferredSlots);
             events.put(event.id, event);
             return event.id;
         }
 
-        public String createParticipantBookingForEvent(String eventId, String participantUserId) {
+        public String joinEvent(String eventId, String participantUserId) {
             Event event = Optional.ofNullable(events.get(eventId)).orElseThrow();
-            EventParticipantBooking booking = new EventParticipantBooking(UUID.randomUUID().toString(), event.id, participantUserId);
 
-            event.holdParticipant();
+            if (!event.availableSpots.tryAcquire())
+                throw new IllegalStateException("No spots available");
+
+            EventParticipantBooking booking = new EventParticipantBooking(
+                UUID.randomUUID().toString(),
+                eventId,
+                participantUserId);
+
+            booking.hold(300);
             eventParticipantBookings.put(booking.id, booking);
+
             return booking.id;
         }
 
-        public boolean confirmParticipantEventBooking(String bookingId) {
+        public boolean confirmParticipantBooking(String bookingId) {
             EventParticipantBooking booking = Optional.ofNullable(eventParticipantBookings.get(bookingId)).orElseThrow();
-            Event event = Optional.ofNullable(events.get(booking.eventId)).orElseThrow();
-            if (!EventParticipantBookingStatus.HOLD.equals(booking.status) || Instant.now().isAfter(booking.holdExpiryAt))
+            if (BookingStatus.CONFIRM.equals(booking.status))
+                return true;
+
+            if (!BookingStatus.HOLD.equals(booking.status))
                 throw new IllegalStateException();
-            synchronized (booking) {
-                if (!EventParticipantBookingStatus.HOLD.equals(booking.status) || Instant.now().isAfter(booking.holdExpiryAt))
-                    throw new IllegalStateException();
-                booking.confirm();
-                return event.confirmParticipant(booking.participantUserId);
+
+            if (Instant.now().isAfter(booking.holdExpiryAt)) {
+                cancelParticipantBooking(booking.id);
+                throw new IllegalStateException("Hold expired");
+            }
+
+            Event event = Optional.ofNullable(events.get(booking.eventId)).orElseThrow();
+
+            synchronized (event) {
+                if (!event.participantUserIds.add(booking.participantUserId))
+                    throw new IllegalStateException("Already joined");
+
+                booking.setStatus(BookingStatus.CONFIRM);
+                return true;
             }
         }
 
-        public void updateVenueBookingForEvent(String bookingId, String eventId) {
+        public void cancelParticipantBooking(String bookingId) {
+            EventParticipantBooking booking = Optional.ofNullable(eventParticipantBookings.get(bookingId)).orElseThrow();
+            Event event = Optional.ofNullable(events.get(booking.eventId)).orElseThrow();
+
+            if (booking.status == BookingStatus.CONFIRM) {
+                synchronized (event) {
+                    event.participantUserIds.remove(booking.participantUserId);
+                }
+            }
+
+            event.availableSpots.release();
+            booking.setStatus(BookingStatus.CANCEL);
+        }
+
+        public void attachBookingToEvent(String eventId, String bookingId) {
             Event event = Optional.ofNullable(events.get(eventId)).orElseThrow();
-            if (EventStatus.BOOKED.equals(event.status)) // use state pattern instead
-                throw new IllegalStateException();
-
             PlayingAreaBooking booking = Optional.ofNullable(playingAreaBookings.get(bookingId)).orElseThrow();
-            if (!BookingStatus.CONFIRMED.equals(booking.status))
-                throw new IllegalStateException();
-            if (!booking.bookingByUserId.equals(event.createdByUserId))
-                throw new IllegalArgumentException();
-            if (booking.start.compareTo(event.start) != 0 || booking.end.compareTo(event.end) != 0) // booking to event, 1 to 1
-                throw new IllegalArgumentException();
+            if (event.bookingId != null)
+                throw new IllegalStateException("Event already linked to a booking.");
 
-            event.setBookingId(bookingId);
+            if (booking.eventId != null)
+                throw new IllegalStateException("Booking already linked to an event.");
+
+            // Optional business validations
+            if (!event.sport.equals(booking.sport))
+                throw new IllegalArgumentException("Sport mismatch.");
+
+            if (!event.date.equals(booking.date))
+                throw new IllegalArgumentException("Date mismatch.");
+
+            event.bookingId = booking.id;
+            booking.eventId = event.id;
         }
     }
 
@@ -353,7 +484,7 @@ public class Main {
         private final String id;
         private final String eventId;
         private final String participantUserId;
-        private EventParticipantBookingStatus status = EventParticipantBookingStatus.CREATE;
+        private BookingStatus status = BookingStatus.CREATE;
         private Instant holdExpiryAt;
 
         public EventParticipantBooking(String id, String eventId, String participantUserId) {
@@ -362,17 +493,17 @@ public class Main {
             this.participantUserId = participantUserId;
         }
 
-        public void setStatus(EventParticipantBookingStatus status) {
+        public void setStatus(BookingStatus status) {
             this.status = status;
         }
 
         public void hold(long holdForSeconds) {
-            setStatus(EventParticipantBookingStatus.HOLD);
+            setStatus(BookingStatus.HOLD);
             holdExpiryAt = Instant.now().plusSeconds(holdForSeconds);
         }
 
         public void confirm() {
-            setStatus(EventParticipantBookingStatus.CONFIRMED);
+            setStatus(BookingStatus.CONFIRM);
             holdExpiryAt = null;
         }
     }
@@ -380,20 +511,22 @@ public class Main {
     public class Event {
         private final String id;
         private String bookingId;
-        private String createdByUserId;
-        private final Instant start;
-        private final Instant end;
+        private final String organizerId;
+        private Sport sport;
+        private final LocalDate date;
+        private final SlotRange preferredSlot;
+        private String venueOfferingId;
         private final Semaphore availableSpots;
         private final Set<String> participantUserIds = new HashSet<>();
         private final EventStatus status = EventStatus.CREATED;
 
-        public Event(String id, String bookingId, Instant start, Instant end, int totalSpots, String createdByUserId) {
+        public Event(String id, String bookingId, int totalSpots, String organizerId, LocalDate date, SlotRange preferredSlot) {
             this.id = id;
             this.bookingId = bookingId;
-            this.createdByUserId = createdByUserId;
-            this.start = start;
-            this.end = end;
+            this.organizerId = organizerId;
             this.availableSpots = new Semaphore(totalSpots);
+            this.date = date;
+            this.preferredSlot = preferredSlot;
         }
 
         public void setBookingId(String bookingId) {
