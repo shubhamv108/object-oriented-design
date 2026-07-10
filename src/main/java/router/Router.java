@@ -13,7 +13,7 @@ import java.util.Optional;
 public class Router {
 
     public enum HttpMethod {
-        GET, POST, PUT, PATCH, DELETE, OPTION,
+        GET, POST, PUT, PATCH, DELETE, OPTION, HEAD
     }
 
     public class Service {
