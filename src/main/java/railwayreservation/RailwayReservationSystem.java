@@ -20,6 +20,10 @@ import java.util.concurrent.locks.StampedLock;
 
 public class RailwayReservationSystem {
 
+    public enum ClassType {
+        FIRST_AC, SECOND_AC, THIRD_AC, SL, CC
+    }
+
     public class Train {
         private final String id;
         private final int number;
@@ -196,10 +200,6 @@ public class RailwayReservationSystem {
             }
             return allocated;
         }
-    }
-
-    public enum ClassType {
-        FIRST_AC, SECOND_AC, THIRD_AC, RAC, SL, CC
     }
 
     public class SeatInstance {
