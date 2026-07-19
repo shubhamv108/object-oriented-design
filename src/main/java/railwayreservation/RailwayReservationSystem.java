@@ -351,9 +351,8 @@ public class RailwayReservationSystem {
             if (!inventory.isAvailable(train.getStationStopSeq(sourceStationId), train.getStationStopSeq(destinationStationId), passengerCount))
                 throw new IllegalStateException("Seats not available");
 
-            if (!inventory.reserve(train.getStationStopSeq(sourceStationId), train.getStationStopSeq(destinationStationId), passengerCount)) {
+            if (!inventory.reserve(train.getStationStopSeq(sourceStationId), train.getStationStopSeq(destinationStationId), passengerCount))
                 throw new IllegalStateException();
-            }
             try {
                 List<SeatInstance> allocatedSeats = instance.allocateSeats(classType, passengerCount, train.getSegmentMask(sourceStationId, destinationStationId));
                 if (allocatedSeats.size() != passengerCount)
