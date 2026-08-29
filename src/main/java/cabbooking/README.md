@@ -11,7 +11,7 @@ CabType
 + SUV
 + SEDAN
 
-User
+ratelimiter.User
 - bookedCabIds
 + findCabs(source: String, destination: String, cabTypes: List<CabType>): List
 + confirm(cabId: String): void

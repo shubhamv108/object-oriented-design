@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 4. Scalable
  *
  * Actors
- * User
+ * ratelimiter.User
  * Admin
  *
  * Core Entities
@@ -42,14 +42,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Location
  * Calender - WeeklySlotsHolder
  * TimeInterval
- * User
+ * ratelimiter.User
  * Window
  * Booking
  */
 public class MeetingRoomBookingSystem {
 
     public class RoomBookingSystem {
-        private final Map<String, User> users = new ConcurrentHashMap<>();
+        private final Map<String, ratelimiter.User> users = new ConcurrentHashMap<>();
         private final Map<String, Store> stores = new ConcurrentHashMap<>();
         private final Map<String, Room> rooms = new ConcurrentHashMap<>();
         private final Map<String, Set<Location>> storeRoomLocations = new ConcurrentHashMap<>();
@@ -61,7 +61,7 @@ public class MeetingRoomBookingSystem {
 
         public String addUser() {
             String id = UUID.randomUUID().toString();
-            User user = new User(id);
+            ratelimiter.User user = new ratelimiter.User(id);
             users.put(id, user);
             return id;
         }
@@ -354,10 +354,10 @@ public class MeetingRoomBookingSystem {
         }
     }
 
-    public class User {
+    public class ratelimiter.User {
         private final String id;
 
-        public User(String id) {
+        public ratelimiter.User(String id) {
             this.id = id;
         }
     }

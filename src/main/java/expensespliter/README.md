@@ -1,15 +1,15 @@
 SplitService
- - users: Map<String, User>
+ - users: Map<String, ratelimiter.User>
  - groups: Map<String, Group>
  + addUser(name: String): String
  + addGroup(name: String, members: List<String>): String
- + createExpense(amount: double, paidBy: User, participants: List<String>, splitValues: List<Double>, splitStrategy: ISplitStrategy) {synchronized} // useBuilder
+ + createExpense(amount: double, paidBy: ratelimiter.User, participants: List<String>, splitValues: List<Double>, splitStrategy: ISplitStrategy) {synchronized} // useBuilder
  + addTransaction(transaction: Transaction) {synchronized}
  + showBalances(userId: String, otherUserId: String)
  + showBalances(userId: String)
  + simplifyGroupExpenses()
 
- User
+ ratelimiter.User
  - id: String
  - name: String
  - balanceSheet: BalanceSheet
@@ -21,28 +21,28 @@ SplitService
 
  Group
  - id: String
- - members: Set<User>
+ - members: Set<ratelimiter.User>
  + getId(): String
- + getMembers(): List<User>
+ + getMembers(): List<ratelimiter.User>
 
  Expense
  - amount: double
- - paidBy: User
- - participants: Set<User>
+ - paidBy: ratelimiter.User
+ - participants: Set<ratelimiter.User>
  - splits: List<Split>
  + getAmount(): Double
- + getPaidBy(): User
- + getParticipants(): List<User>
+ + getPaidBy(): ratelimiter.User
+ + getParticipants(): List<ratelimiter.User>
  + getSplits(): List<Split>
 
  ISplitStrategy
- + createSplits(amount: double, paidBy: User, participants: Set<User>, splitValues: List<Double>): List<Split>
- + validateOrThrowException(amount: double, paidBy: User, participants: Set<User>, splitValues: List<Double>) throws InvalidExpenseException: boolean
+ + createSplits(amount: double, paidBy: ratelimiter.User, participants: Set<ratelimiter.User>, splitValues: List<Double>): List<Split>
+ + validateOrThrowException(amount: double, paidBy: ratelimiter.User, participants: Set<ratelimiter.User>, splitValues: List<Double>) throws InvalidExpenseException: boolean
 
   Split
-  - user: User
+  - user: ratelimiter.User
   - amount: double
-  + getUser(): User
+  + getUser(): ratelimiter.User
   + getAmount(): Double
 
   InvalidExpenseException(Exception)
@@ -61,7 +61,7 @@ SplitService
  + toString(): String
 
  BalanceSheet
- - balances: Map<User, Double>
- + adjustBalance(other: User, amount: double)
- + getBalances(): Map<User, Double>
- + getBalance(User other): Double
+ - balances: Map<ratelimiter.User, Double>
+ + adjustBalance(other: ratelimiter.User, amount: double)
+ + getBalances(): Map<ratelimiter.User, Double>
+ + getBalance(ratelimiter.User other): Double

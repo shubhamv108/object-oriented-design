@@ -2,44 +2,44 @@ ExpenseType
 + INDIVIDUAL
 + GROUP
 
-User
+ratelimiter.User
 - name
-+ User(name: String)
++ ratelimiter.User(name: String)
 + getName(): String
 
 <<Expense>>
-+ getPayer(): User
++ getPayer(): ratelimiter.User
 + getAmount(): double
 + getType(): ExpenseType
 
 IndividualExpense(Expense)
-- payer: User
+- payer: ratelimiter.User
 - amount: double
 
 GroupExpense(Expense)
-- payer: User
+- payer: ratelimiter.User
 - amount: double
-- participants: List<User>
+- participants: List<ratelimiter.User>
 
 ExpenseFactory
-+ create(payer: User, amount: double, participants: List<User>)
++ create(payer: ratelimiter.User, amount: double, participants: List<ratelimiter.User>)
 
 <<Settlement>>
-+ getDebitor():  User
-+ getCreditor(): User
++ getDebitor():  ratelimiter.User
++ getCreditor(): ratelimiter.User
 + getAmount(): double
 
 IndividualSettlement(Settlement)
-- debitor: User
-- creditor: User
+- debitor: ratelimiter.User
+- creditor: ratelimiter.User
 
 GroupSettlement(Settlement)
-- debitor: User
-- creditor: User
+- debitor: ratelimiter.User
+- creditor: ratelimiter.User
 
 SettlementManager
 - settlements: List<Settlement>
-- balances: Map<User, Double>
+- balances: Map<ratelimiter.User, Double>
 + getInstance(): SettlementManager
 + showBalances(): void
 
