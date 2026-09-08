@@ -1,22 +1,45 @@
-Rate limiter throttles the request
-Allows x request/min
+Request
+- clientId: String
+- endpoint: String
+- count: int
 
-<<RateLimiter>>
-+ allow(): boolean
+RateLimitResult
+- allowed: boolean
+- remaining: int
+- retryAfterInMS: Timestamp
 
-AbstractRateLimiter(RateLimiter)
-+- requestCount: int
-+- timeUnit: TimeUnit
-+- currentRequests: int
-+ AbstractRateLimiter(int, TimeUnit)
-- abstract reset(): void
+RateLimitAlgorithm(Enum)
++ FIXED
++ SLIDING_WINDOW_COUNT
++ LEAKY_BUCKET
++ TOKEN_BUKET
 
-FixedWindowRateLimiter(AbstractRateLimiter)
-- startResetTask(): void
+<<RateLimitStrategy>>
++ allow(key: String, count: int): RateLimitResult
 
-<<RateLimitFactory>>
-+ create(int, TimeUnit): RateLimiter
+RateLimitStrategyFactory
++ get(config: Map<String, String>): RateLimitStrategy
 
-FixedWindowRateLimiter(RateLimitFactory)
+EndpointRateLimitConfig
+- endpoint: String
+- config: Map<String, String>
 
+RateLimitConfig
+- endpointRateLimitConfigs: EndpointRateLimitConfig[]
+- defaultConfig: Map<String, String>
 
+RateLimiter
+- endpointRateLimiters: Map<String, RateLimitStrategy>
+- defaultRateLimiter: RateLimitStrategy
++ RateLimiter(config: RateLimitConfig)
++ allow(request: Request): RateLimitResult
+
+TokenBucket
+- tokens: double
+- lastRefreshTimeInNanoSeconds: long
+
+TokenBucketRateLimitStrategy(RateLimitStrategy)
+- capacity: double
+- refillRateInNanoseconds: double
++ allow(key: String, count: int): RateLimitResult
+- refresh(bucket: TokenBucket)

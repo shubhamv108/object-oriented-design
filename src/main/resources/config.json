@@ -1,0 +1,55 @@
+{
+  "ruleType":"AND",
+  "rules": [
+    {
+      "ruleType":"AND",
+      "rules": [
+        {
+          "ruleType":"BASE",
+          "key":"user_id",
+          "operation":"GT",
+          "value":"0"
+        },
+        {
+          "ruleType":"BASE",
+          "key":"user_id",
+          "operation":"LTE",
+          "value":"2147483647"
+        }
+      ]
+    },
+    {
+      "ruleType":"OR",
+      "rules": [
+        {
+          "ruleType":"BASE",
+          "key":"type_id",
+          "operation":"EQ_IGNORE_CASE",
+          "value":"log"
+        },
+        {
+          "ruleType":"BASE",
+          "key":"type_id",
+          "operation":"EQ_IGNORE_CASE",
+          "value":"order"
+        },
+        {
+          "ruleType":"BASE",
+          "key":"type_id",
+          "operation":"EQ_IGNORE_CASE",
+          "value":"metric"
+        }
+      ]
+    },
+    {
+      "ruleType":"AND",
+      "rules": [
+        {
+          "ruleType":"BASE",
+          "key":"timestamp",
+          "operation":"IS_VALID_EPOCH_IN_MILLIS"
+        }
+      ]
+    }
+  ]
+}

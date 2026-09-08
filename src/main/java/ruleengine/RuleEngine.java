@@ -1,177 +1,167 @@
 package ruleengine;
 
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RuleEngine {
 
-    public interface IRule<V> {
-        boolean testAny(Map<String, V> keyValuePairs);
-        boolean test(Map<String, V> keyValuePairs);
-        boolean test(String key, V value);
-
-        IRule<V> next();
-        IRule<V> next(IRule next);
+    public enum Operation {
+        LT, LTE, GT, GTE, EQ, EQ_IGNORE_CASE, IS_NULL, IS_NOT_NULL, IS_VALID_EPOCH_IN_MILLIS
     }
 
-    public static abstract class AbstractRule<V> implements IRule<V> {
-        private IRule<V> next;
-
-        @Override
-        public IRule<V> next(IRule next) {
-            return this.next = next;
-        }
-
-        @Override
-        public IRule<V> next() {
-            return this.next;
-        }
-
-
-        @Override
-        public boolean testAny(Map<String, V> keyValuePairs) {
-            return keyValuePairs
-                    .entrySet()
-                    .stream()
-                    .anyMatch(e -> test(e.getKey(), e.getValue()));
-        }
-
-        @Override
-        public boolean test(Map<String, V> keyValuePairs) {
-            return keyValuePairs
-                    .entrySet()
-                    .stream()
-                    .allMatch(e -> test(e.getKey(), e.getValue()));
-        }
-
-        public boolean test(String key, V value) {
-            return next.test(key, value);
-        }
-    }
-
-    public static class Rule<V extends Comparable> extends AbstractRule<V> {
+    protected static class BaseRule implements Rule {
         private final String key;
-        private final String operator;
-        private final V value;
-
-        public Rule(final String key, final String operator, final V value) {
-            this.key = key;
-            this.operator = operator;
-            this.value = value;
-        }
-
-        @Override
-        public boolean test(String key, V value) {
-            if (!this.key.equals(key))
-                return false;
-
-            if (this.value == null)
-                return value == null;
-
-            if (value == null)
-                return false;
-
-            if (value instanceof Map<?, ?>)
-                return super.test((Map<String, V>) value);
-
-            switch (operator) {
-                case "=":  return this.value.equals(value);
-                case "<":  return this.value.compareTo(value) > 0;
-                case ">":  return this.value.compareTo(value) < 0;
-                case "<=": return this.value.compareTo(value) >= 0;
-                case ">=": return this.value.compareTo(value) <= 0;
-                case "!=": return this.value.compareTo(value) != 0;
-                default: return this.next().test(key, value);
-            }
-        }
-    }
-
-    public static class CollectionRule<V extends Comparable> extends AbstractRule<V>  {
-        private final String key;
-        private final String operator;
-        private final Collection<V> value;
-
-        public CollectionRule(String key, String operator, Collection<V> value) {
-            this.key = key;
-            this.operator = operator;
-            this.value = value;
-        }
-
-        public boolean test(String key, V value) {
-            if (!this.key.equals(key))
-                return false;
-
-            if (this.value == null)
-                return value == null;
-
-            if (value == null)
-                return false;
-
-            if (value instanceof Collection<?>)
-                return test(key, (Collection<V>) value);
-
-            switch (operator) {
-                case "has":  return this.value.contains(value);
-                case "!has": return !this.value.contains(value);
-                default: return this.next().test(key, value);
-            }
-        }
-
-        public boolean test(String key, Collection<V> value) {
-            if (!this.key.equals(key))
-                return false;
-
-            if (this.value == null)
-                return value == null;
-
-            if (value == null)
-                return false;
-
-            switch (operator) {
-                case "=":  return this.value.equals(value);
-                case "hasAll": return !this.value.containsAll(value);
-                case "hasAny": return value.stream().anyMatch(this.value::contains);
-                case "hasNone": return value.stream().noneMatch(this.value::contains);
-                default: return false;
-            }
-        }
-    }
-
-    static class EngineEntry {
-        private final IRule<?> rule;
+        private final Operation operation;
         private final Object value;
+        private final Class<?> dataType;
 
-        public EngineEntry(IRule<?> rule, Object value) {
-            this.rule = rule;
+        protected BaseRule(String key, Operation operation, Object value, Class<?> dataType) {
+            if (key == null || key.isEmpty() || operation == null)
+                throw new IllegalArgumentException();
+            this.key = key;
+            this.operation = operation;
             this.value = value;
+            this.dataType = dataType;
+        }
+
+        public boolean evaluate(Map<String, Object> m) {
+            Object val = m.get(key);
+            if (Operation.IS_NULL.equals(operation))
+                return val == null;
+            if (Operation.IS_NOT_NULL.equals(operation))
+                return val != null;
+            if (val == null)
+                return false;
+
+            if (this.dataType != null && !this.dataType.isInstance(val))
+                return false;
+
+            return switch (operation) {
+                case LT -> compare(val, value) < 0;
+                case LTE -> compare(val, value) <= 0;
+                case GT -> compare(val, value) > 0;
+                case GTE -> compare(val, value) >= 0;
+                case EQ -> compare(val, value) == 0;
+                case EQ_IGNORE_CASE -> val instanceof String && value instanceof String
+                        && ((String) val).equalsIgnoreCase((String) value);
+                case IS_NULL -> val == null;
+                case IS_NOT_NULL -> val != null;
+                case IS_VALID_EPOCH_IN_MILLIS -> isValidEpochMillis(val);
+            };
+        }
+
+        private int compare(Object val, Object target) {
+            if (val instanceof Number && target instanceof Number)
+                return Double.compare(((Number) val).doubleValue(), ((Number) target).doubleValue());
+
+            if (val instanceof String && target instanceof String)
+                return ((String) val).compareTo((String) target);
+
+            throw new IllegalArgumentException();
+        }
+
+        public static boolean isValidEpochMillis(Object timestamp) {
+            if (!(timestamp instanceof Number))
+                return false;
+            try {
+                Instant value = Instant.ofEpochMilli((Long) timestamp);
+                return value.isBefore(Instant.now());
+            } catch (DateTimeException e) {
+                return false;
+            }
         }
     }
 
-    public class Engine {
-        private final List<EngineEntry> entries = new ArrayList<>();
+    public interface Rule {
+        boolean evaluate(Map<String, Object> m);
+    }
 
-        public void addEntry(EngineEntry engineEntry) {
-            this.entries.add(engineEntry);
-        }
+    public static abstract class AbstractRule implements Rule {
+        protected final List<Rule> rules = new ArrayList<>();
 
-        public List<Object> getAllApplicable(Map m) {
-            return entries
-                    .stream()
-                    .filter(engineEntry -> engineEntry.rule.testAny(m))
-                    .map(engineEntry -> engineEntry.value)
-                    .toList();
+        public void add(Rule rule) {
+            rules.add(rule);
         }
     }
 
-    public static void main(String[] args) {
-        IRule<Integer> ageRule = new Rule<>("age", ">=", 1).next(new Rule("age", "<=", 18));
+   public static class AndRule extends AbstractRule {
+       public boolean evaluate(Map<String, Object> m) {
+           return rules.stream().allMatch(r -> r.evaluate(m));
+       }
+    }
 
-        Engine engine = new RuleEngine().new Engine();
-        engine.addEntry(new EngineEntry(ageRule, "test"));
-        System.out.println(engine.getAllApplicable(new HashMap<>() {{put("age", 1);}}));
+    public static class OrRule extends AbstractRule {
+        public boolean evaluate(Map<String, Object> m) {
+            return rules.stream().anyMatch(r -> r.evaluate(m));
+        }
+    }
+
+   public static class NotRule extends AbstractRule {
+        public boolean evaluate(Map<String, Object> m) {
+            return rules.stream().noneMatch(r -> r.evaluate(m));
+        }
+    }
+
+    public enum RuleType {
+        BASE, AND, OR, NOT
+    }
+
+    public static class ConfigurableRule {
+        private RuleType ruleType;
+        private List<ConfigurableRule> rules;
+        private String key;
+        private Operation operation;
+        private Object value;
+        private Class<?> dataType;
+
+        public Rule generateRule() {
+            if (RuleType.BASE.equals(ruleType))
+                return new BaseRule(key, operation, value, dataType);
+            AbstractRule rule = switch (ruleType) {
+                case BASE -> null;
+                case AND -> new AndRule();
+                case OR -> new OrRule();
+                case NOT -> new NotRule();
+            };
+            if (rules == null || rules.isEmpty())
+                return rule;
+            rules.stream().filter(Objects::nonNull)
+                    .map(ConfigurableRule::generateRule)
+                    .forEach(rule::add);
+            return rule;
+        }
+    }
+
+
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        Map<String, Object> log = new HashMap<>();
+        log.put("user_id", "101");
+        log.put("type_id", "log");
+        log.put("timestamp", System.currentTimeMillis());
+
+        String config = config();
+        Gson gson = new Gson();
+        ConfigurableRule configurableRule = gson.fromJson(config, ConfigurableRule.class);
+        Rule rule = configurableRule.generateRule();
+        System.out.println(rule.evaluate(log));
+    }
+
+
+    private static String config() throws IOException, URISyntaxException {
+        Path path = Paths.get(Objects.requireNonNull(RuleEngine.class.getClassLoader().getResource("config.json")).toURI());
+        return Files.readString(path);
     }
 
 }

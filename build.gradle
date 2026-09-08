@@ -69,6 +69,7 @@ dependencies {
             'org.jctools:jctools-core:4.0.1',
             'org.openjdk.jmh:jmh-core:1.37',
             'com.github.f4b6a3:uuid-creator:6.1.0',
+            'com.google.code.gson:gson:2.14.0',
     )
     compileOnly (
             'org.projectlombok:lombok:1.18.40'
