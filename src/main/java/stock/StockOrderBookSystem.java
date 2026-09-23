@@ -44,6 +44,10 @@ public class StockOrderBookSystem {
         private final Map<String, Order> orders = new ConcurrentHashMap<>();
         private final Map<Side, ConcurrentSkipListMap<Double, Set<String>>> orderBooks;
 
+        private final Map<Side, ConcurrentHashMap<Double, Lock>> priceLocks = Map.of(
+                Side.BUY, new ConcurrentHashMap<>(),
+                Side.SELL, new ConcurrentHashMap<>());
+
         public OrderBook() {
             Map<Side, ConcurrentSkipListMap<Double, Set<String>>> books = new HashMap<>();
             books.put(Side.BUY, new ConcurrentSkipListMap<>(Collections.reverseOrder()));
@@ -51,10 +55,6 @@ public class StockOrderBookSystem {
             this.orderBooks = Collections.unmodifiableMap(books);
         }
 
-        private final Map<Side, ConcurrentHashMap<Double, Lock>> priceLocks = Map.of(
-                Side.BUY, new ConcurrentHashMap<>(),
-                Side.SELL, new ConcurrentHashMap<>()
-                                                                                    );
         private Lock getPriceLock(Side side, double price) {
             return priceLocks.get(side)
                     .computeIfAbsent(price, p -> new ReentrantLock());
