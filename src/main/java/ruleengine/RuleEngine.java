@@ -40,8 +40,6 @@ public class RuleEngine {
             Object val = m.get(key);
             if (Operation.IS_NULL.equals(operation))
                 return val == null;
-            if (Operation.IS_NOT_NULL.equals(operation))
-                return val != null;
             if (val == null)
                 return false;
 
@@ -88,9 +86,8 @@ public class RuleEngine {
         boolean evaluate(Map<String, Object> m);
     }
 
-    public static abstract class AbstractRule implements Rule {
+    public abstract static class AbstractRule implements Rule {
         protected final List<Rule> rules = new ArrayList<>();
-
         public void add(Rule rule) {
             rules.add(rule);
         }
@@ -137,8 +134,10 @@ public class RuleEngine {
             };
             if (rules == null || rules.isEmpty())
                 return rule;
-            rules.stream().filter(Objects::nonNull)
+            rules.stream()
+                    .filter(Objects::nonNull)
                     .map(ConfigurableRule::generateRule)
+                    .filter(Objects::nonNull)
                     .forEach(rule::add);
             return rule;
         }
