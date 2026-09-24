@@ -1,7 +1,6 @@
 package stock;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -49,10 +48,9 @@ public class StockOrderBookSystem {
                 Side.SELL, new ConcurrentHashMap<>());
 
         public OrderBook() {
-            Map<Side, ConcurrentSkipListMap<Double, Set<String>>> books = new HashMap<>();
-            books.put(Side.BUY, new ConcurrentSkipListMap<>(Collections.reverseOrder()));
-            books.put(Side.SELL, new ConcurrentSkipListMap<>());
-            this.orderBooks = Collections.unmodifiableMap(books);
+            orderBooks = Map.of(
+                Side.BUY, new ConcurrentSkipListMap<>(Collections.reverseOrder()),
+                Side.SELL, new ConcurrentSkipListMap<>());
         }
 
         private Lock getPriceLock(Side side, double price) {
@@ -76,7 +74,9 @@ public class StockOrderBookSystem {
                 Lock priceLock = getPriceLock(order.side, order.price);
                 priceLock.lock();
                 try {
-                    orderBooks.get(order.side).computeIfAbsent(order.price, orders -> ConcurrentHashMap.newKeySet()).add(id);
+                    orderBooks.get(order.side)
+                        .computeIfAbsent(order.price, orders -> ConcurrentHashMap.newKeySet())
+                        .add(id);
                 } finally {
                     priceLock.unlock();
                 }
